@@ -35,33 +35,30 @@ const APPLICANT_MENU: MenuItem[] = [
 ];
 
 // ────────────────────────────────────────────────────
-// Massive bottom branding — bleeds off viewport
+// z-0: Massive bottom branding — background layer
 // ────────────────────────────────────────────────────
 function BottomBranding() {
   return (
-    <div className="pointer-events-none absolute bottom-0 left-0 z-40 w-full overflow-hidden">
-      <h1 className="whitespace-nowrap text-[15vw] font-black uppercase leading-[0.75] tracking-tighter text-[#1A1A1A]">
+    <div className="pointer-events-none absolute bottom-[-2vh] left-0 z-0 w-full text-center overflow-hidden">
+      <span className="inline-block text-[15vw] font-black leading-[0.75] tracking-tighter text-[#1A1A1A]">
         TalentOne
-      </h1>
+      </span>
     </div>
   );
 }
 
 // ────────────────────────────────────────────────────
-// Contextual subtext (bottom-left of left panel)
+// z-10: Contextual subtext — bottom-left corner only
 // ────────────────────────────────────────────────────
 function Subtext() {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: 0.4, duration: 0.8 }}
-      className="absolute bottom-32 left-12 z-10 max-w-xs"
+      transition={{ delay: 0.6, duration: 0.8 }}
+      className="absolute bottom-12 left-12 z-10 max-w-xs"
     >
-      <p className="text-sm font-semibold text-[#1A1A1A] leading-snug">
-        Talent Intelligence
-      </p>
-      <p className="mt-1.5 text-sm leading-relaxed text-[#1A1A1A]/40">
+      <p className="text-sm leading-relaxed text-[#1A1A1A]/35">
         Quantifying Semantic Match.
         <br />
         We help enterprise HR eliminate false positives and capture alpha in
@@ -72,29 +69,29 @@ function Subtext() {
 }
 
 // ────────────────────────────────────────────────────
-// Small top-corner nav menu (revealed on hover)
+// z-20: Centered nav menu (revealed on hover)
 // ────────────────────────────────────────────────────
 function NavMenu({ items }: { items: MenuItem[] }) {
   return (
-    <nav className="flex flex-col gap-0.5">
+    <nav className="flex flex-col items-center gap-1">
       {items.map((item, i) => (
         <motion.a
           key={item.label}
           href="#"
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
+          exit={{ opacity: 0, y: -12 }}
           transition={{
-            duration: 0.4,
+            duration: 0.45,
             delay: i * 0.05,
             ease: CUBIC,
           }}
-          className="group block cursor-pointer"
+          className="group block cursor-pointer text-center"
         >
-          <span className="text-2xl font-bold leading-tight text-[#1A1A1A] transition-opacity duration-200 group-hover:opacity-35">
+          <span className="text-[clamp(2.5rem,6vw,5.5rem)] font-bold uppercase leading-[0.85] tracking-[-0.02em] text-[#1A1A1A] transition-opacity duration-200 group-hover:opacity-30">
             {item.label}
             {item.sup && (
-              <sup className="ml-0.5 text-[0.55em] font-normal text-[#1A1A1A]/40 align-super">
+              <sup className="ml-1 text-[0.35em] font-normal text-[#1A1A1A]/40 align-super">
                 ({item.sup})
               </sup>
             )}
@@ -134,7 +131,7 @@ function Panel({
 
   return (
     <motion.div
-      className={`relative flex flex-col overflow-hidden ${bg} cursor-pointer`}
+      className={`relative overflow-hidden ${bg} cursor-pointer`}
       style={
         isMobile
           ? { width: "100%", height: active ? "65vh" : dimmed ? "35vh" : "50vh" }
@@ -153,44 +150,40 @@ function Panel({
       {/* Hair-thin divider */}
       {!isMobile && (
         <div
-          className={`absolute ${isLeft ? "right-0" : "left-0"} top-0 h-full w-px bg-[#1A1A1A]/10`}
+          className={`absolute ${isLeft ? "right-0" : "left-0"} top-0 h-full w-px bg-[#1A1A1A]/10 z-10`}
         />
       )}
       {isMobile && (
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-[#1A1A1A]/10" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-[#1A1A1A]/10 z-10" />
       )}
 
-      {/* Left panel: subtext (always visible) */}
+      {/* Subtext — left panel only, desktop only */}
       {isLeft && !isMobile && <Subtext />}
 
-      {/* ── Idle title (centered vertically) ── */}
+      {/* ── z-20: Idle title — dead center ── */}
       <AnimatePresence>
         {!active && (
           <motion.div
             key="idle"
-            className="absolute inset-0 flex items-center justify-center"
+            className="absolute inset-0 z-20 flex items-center justify-center"
             initial={{ opacity: 0 }}
-            animate={{ opacity: dimmed ? 0.12 : 1 }}
-            exit={{ opacity: 0, y: -30 }}
+            animate={{ opacity: dimmed ? 0.1 : 1 }}
+            exit={{ opacity: 0, y: -40 }}
             transition={{ duration: 0.4, ease: CUBIC }}
           >
-            <h2 className="pointer-events-none select-none text-center text-[clamp(2rem,5vw,4.5rem)] font-bold uppercase leading-[0.9] tracking-[-0.03em] text-[#1A1A1A]/80">
-              {idleTitle.split(" ").map((word, i) => (
-                <span key={i} className="block">
-                  {word}
-                </span>
-              ))}
+            <h2 className="pointer-events-none select-none text-center text-[clamp(2.5rem,6vw,5.5rem)] font-bold uppercase leading-[0.9] tracking-[-0.03em] text-[#1A1A1A]/80">
+              {idleTitle}
             </h2>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Active: small nav in top-left corner ── */}
+      {/* ── z-20: Active menu — dead center ── */}
       <AnimatePresence>
         {active && (
           <motion.div
             key="menu"
-            className="absolute top-10 left-10 md:top-12 md:left-12 z-10"
+            className="absolute inset-0 z-20 flex flex-col items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, transition: { duration: 0.15 } }}
@@ -231,17 +224,17 @@ export default function SplitHero() {
 
   return (
     <main className="relative h-screen w-screen overflow-hidden bg-white">
-      {/* Massive bottom bleed branding */}
+      {/* z-0: background branding */}
       <BottomBranding />
 
-      {/* ── Desktop: horizontal split ── */}
-      <div className="hidden md:flex h-full w-full flex-row">
+      {/* z-10+: interactive panels */}
+      <div className="relative z-10 hidden md:flex h-full w-full flex-row">
         <Panel
           side="left"
           active={hoveredSide === "left"}
           dimmed={hoveredSide === "right"}
           widthPct={leftWidth}
-          idleTitle="For Enterprise"
+          idleTitle="Enterprise"
           menuItems={ENTERPRISE_MENU}
           onEnter={handleEnter("left")}
           onLeave={handleLeave}
@@ -252,7 +245,7 @@ export default function SplitHero() {
           active={hoveredSide === "right"}
           dimmed={hoveredSide === "left"}
           widthPct={rightWidth}
-          idleTitle="For Applicants"
+          idleTitle="Talent"
           menuItems={APPLICANT_MENU}
           onEnter={handleEnter("right")}
           onLeave={handleLeave}
@@ -260,14 +253,14 @@ export default function SplitHero() {
         />
       </div>
 
-      {/* ── Mobile: vertical split ── */}
-      <div className="flex md:hidden h-full w-full flex-col">
+      {/* Mobile */}
+      <div className="relative z-10 flex md:hidden h-full w-full flex-col">
         <Panel
           side="left"
           active={hoveredSide === "left"}
           dimmed={hoveredSide === "right"}
           widthPct={50}
-          idleTitle="For Enterprise"
+          idleTitle="Enterprise"
           menuItems={ENTERPRISE_MENU}
           onEnter={handleEnter("left")}
           onLeave={handleLeave}
@@ -278,7 +271,7 @@ export default function SplitHero() {
           active={hoveredSide === "right"}
           dimmed={hoveredSide === "left"}
           widthPct={50}
-          idleTitle="For Applicants"
+          idleTitle="Talent"
           menuItems={APPLICANT_MENU}
           onEnter={handleEnter("right")}
           onLeave={handleLeave}
