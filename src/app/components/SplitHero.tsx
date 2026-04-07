@@ -10,7 +10,7 @@ const EXPANDED = 65;
 const COLLAPSED = 35;
 const RESTING = 50;
 
-const SPRING = { type: "spring", stiffness: 180, damping: 28, mass: 0.9 };
+const SPRING = { type: "spring" as const, stiffness: 180, damping: 28, mass: 0.9 };
 const FADE_UP = {
   initial: { opacity: 0, y: 30 },
   animate: { opacity: 1, y: 0 },
@@ -46,7 +46,7 @@ function Logo() {
       className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center"
       initial={{ opacity: 0, scale: 0.85 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.2, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ delay: 0.2, duration: 0.9, ease: [0.16, 1, 0.3, 1] as const }}
     >
       <div className="flex flex-col items-center gap-0">
         <h1 className="text-[clamp(1.6rem,3.5vw,2.8rem)] font-black tracking-[-0.05em] uppercase leading-none">
@@ -97,7 +97,7 @@ function TypeMenu({
           transition={{
             duration: 0.45,
             delay: i * STAGGER,
-            ease: [0.16, 1, 0.3, 1],
+            ease: [0.16, 1, 0.3, 1] as const,
           }}
           className="group relative block cursor-pointer"
         >
@@ -183,7 +183,7 @@ function Panel({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: dimmed ? 0.25 : 0.85, y: 0 }}
               exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }}
               className="text-[clamp(2.2rem,7vw,6rem)] font-black uppercase leading-[0.9] tracking-[-0.04em] text-[#1a1a1a]"
             >
               {idleTitle.split(" ").map((word, i) => (
