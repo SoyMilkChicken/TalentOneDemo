@@ -16,22 +16,22 @@ const CUBIC = [0.16, 1, 0.3, 1] as const;
 type Side = "left" | "right" | null;
 
 // ────────────────────────────────────────────────────
-// Menu data
+// Menu data — now with anchor hrefs
 // ────────────────────────────────────────────────────
-type MenuItem = { label: string; sup?: string };
+type MenuItem = { label: string; sup?: string; href: string };
 
 const ENTERPRISE_MENU: MenuItem[] = [
-  { label: "Audit Engine" },
-  { label: "Architecture" },
-  { label: "Case Study", sup: "01" },
-  { label: "Contact Sales" },
+  { label: "Audit Engine", href: "#audit" },
+  { label: "Architecture", href: "#architecture" },
+  { label: "Case Study", sup: "01", href: "#case-study" },
+  { label: "Contact Sales", href: "#contact" },
 ];
 
 const APPLICANT_MENU: MenuItem[] = [
-  { label: "Upload Resume" },
-  { label: "Vector Analysis" },
-  { label: "FAQ" },
-  { label: "Contact Us" },
+  { label: "Upload Resume", href: "#upload" },
+  { label: "Vector Analysis", href: "#analysis" },
+  { label: "FAQ", href: "#faq" },
+  { label: "Contact Us", href: "#contact" },
 ];
 
 // ────────────────────────────────────────────────────
@@ -47,17 +47,23 @@ function BottomBranding() {
   );
 }
 
-
 // ────────────────────────────────────────────────────
 // Small top-corner nav menu (revealed on hover)
 // ────────────────────────────────────────────────────
-function NavMenu({ items }: { items: MenuItem[] }) {
+function NavMenu({
+  items,
+  onNavigate,
+}: {
+  items: MenuItem[];
+  onNavigate: () => void;
+}) {
   return (
     <nav className="flex flex-col gap-0.5">
       {items.map((item, i) => (
         <motion.a
           key={item.label}
-          href="#"
+          href={item.href}
+          onClick={onNavigate}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
@@ -94,6 +100,7 @@ function Panel({
   menuItems,
   onEnter,
   onLeave,
+  onNavigate,
   isMobile,
 }: {
   side: "left" | "right";
@@ -104,6 +111,7 @@ function Panel({
   menuItems: MenuItem[];
   onEnter: () => void;
   onLeave: () => void;
+  onNavigate: () => void;
   isMobile: boolean;
 }) {
   const isLeft = side === "left";
@@ -136,7 +144,6 @@ function Panel({
       {isMobile && (
         <div className="absolute bottom-0 left-0 right-0 h-px bg-[#1A1A1A]/10" />
       )}
-
 
       {/* ── Idle title (centered vertically) ── */}
       <AnimatePresence>
@@ -171,7 +178,7 @@ function Panel({
             exit={{ opacity: 0, transition: { duration: 0.15 } }}
             transition={{ duration: 0.1 }}
           >
-            <NavMenu items={menuItems} />
+            <NavMenu items={menuItems} onNavigate={onNavigate} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -190,6 +197,7 @@ export default function SplitHero() {
     []
   );
   const handleLeave = useCallback(() => setHoveredSide(null), []);
+  const handleNavigate = useCallback(() => setHoveredSide(null), []);
 
   const leftWidth =
     hoveredSide === "left"
@@ -205,7 +213,7 @@ export default function SplitHero() {
         : RESTING;
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-white">
+    <section id="hero" className="relative h-screen w-screen overflow-hidden bg-white">
       {/* Massive bottom bleed branding */}
       <BottomBranding />
 
@@ -220,6 +228,7 @@ export default function SplitHero() {
           menuItems={ENTERPRISE_MENU}
           onEnter={handleEnter("left")}
           onLeave={handleLeave}
+          onNavigate={handleNavigate}
           isMobile={false}
         />
         <Panel
@@ -231,6 +240,7 @@ export default function SplitHero() {
           menuItems={APPLICANT_MENU}
           onEnter={handleEnter("right")}
           onLeave={handleLeave}
+          onNavigate={handleNavigate}
           isMobile={false}
         />
       </div>
@@ -242,10 +252,11 @@ export default function SplitHero() {
           active={hoveredSide === "left"}
           dimmed={hoveredSide === "right"}
           widthPct={50}
-          idleTitle="For Enterprise"
+          idleTitle="Enterprise"
           menuItems={ENTERPRISE_MENU}
           onEnter={handleEnter("left")}
           onLeave={handleLeave}
+          onNavigate={handleNavigate}
           isMobile={true}
         />
         <Panel
@@ -257,9 +268,10 @@ export default function SplitHero() {
           menuItems={APPLICANT_MENU}
           onEnter={handleEnter("right")}
           onLeave={handleLeave}
+          onNavigate={handleNavigate}
           isMobile={true}
         />
       </div>
-    </main>
+    </section>
   );
 }
