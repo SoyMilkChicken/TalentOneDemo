@@ -39,7 +39,7 @@ const APPLICANT_MENU: MenuItem[] = [
 // ────────────────────────────────────────────────────
 function BottomBranding() {
   return (
-    <div className="pointer-events-none absolute bottom-0 left-0 z-40 w-full overflow-hidden">
+    <div className="pointer-events-none absolute bottom-0 left-0 z-40 w-full overflow-hidden text-center">
       <h1 className="whitespace-nowrap text-[15vw] font-black uppercase leading-[0.75] tracking-tighter text-[#1A1A1A]">
         TalentOne
       </h1>
@@ -241,7 +241,7 @@ export default function SplitHero() {
           active={hoveredSide === "left"}
           dimmed={hoveredSide === "right"}
           widthPct={leftWidth}
-          idleTitle="For Enterprise"
+          idleTitle="Enterprise"
           menuItems={ENTERPRISE_MENU}
           onEnter={handleEnter("left")}
           onLeave={handleLeave}
@@ -252,7 +252,7 @@ export default function SplitHero() {
           active={hoveredSide === "right"}
           dimmed={hoveredSide === "left"}
           widthPct={rightWidth}
-          idleTitle="For Applicants"
+          idleTitle="Talent"
           menuItems={APPLICANT_MENU}
           onEnter={handleEnter("right")}
           onLeave={handleLeave}
@@ -278,7 +278,7 @@ export default function SplitHero() {
           active={hoveredSide === "right"}
           dimmed={hoveredSide === "left"}
           widthPct={50}
-          idleTitle="For Applicants"
+          idleTitle="Talent"
           menuItems={APPLICANT_MENU}
           onEnter={handleEnter("right")}
           onLeave={handleLeave}
