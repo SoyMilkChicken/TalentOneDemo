@@ -2,10 +2,8 @@
 
 @theme inline {
   --font-sans: var(--font-inter);
-  --color-void: #050505;
-  --color-paper: #f5f5f5;
-  --color-accent: #c8ff00;
-  --color-accent-muted: #a3cc00;
+  --color-background: #f5f4f0;
+  --color-foreground: #1a1a1a;
 }
 
 *,
@@ -23,9 +21,11 @@ body {
   font-family: var(--font-inter), "Inter", "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: #f5f4f0;
+  color: #1a1a1a;
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: var(--color-void);
+  background: #1a1a1a;
+  color: #f5f4f0;
 }

@@ -2,14 +2,6 @@
 
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowRight,
-  Upload,
-  Building2,
-  User,
-  Sparkles,
-  ChevronDown,
-} from "lucide-react";
 
 // ────────────────────────────────────────────────────
 // Constants
@@ -18,89 +10,105 @@ const EXPANDED = 65;
 const COLLAPSED = 35;
 const RESTING = 50;
 
-const SPRING = { type: "spring", stiffness: 200, damping: 30, mass: 0.8 };
-const EASE_OUT = { duration: 0.5, ease: [0.16, 1, 0.3, 1] };
+const SPRING = { type: "spring", stiffness: 180, damping: 28, mass: 0.9 };
+const FADE_UP = {
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+};
+const STAGGER = 0.07;
 
 type Side = "left" | "right" | null;
 
 // ────────────────────────────────────────────────────
-// Logo
+// Menu data
+// ────────────────────────────────────────────────────
+const ENTERPRISE_MENU = [
+  "Audit Engine",
+  "Architecture",
+  "SYSTEX Case Study",
+  "Contact Sales",
+];
+
+const APPLICANT_MENU = [
+  "Upload Resume",
+  "Vector Analysis",
+  "FAQ",
+  "Contact Us",
+];
+
+// ────────────────────────────────────────────────────
+// Center Logo
 // ────────────────────────────────────────────────────
 function Logo() {
   return (
     <motion.div
       className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center"
-      initial={{ opacity: 0, scale: 0.8 }}
+      initial={{ opacity: 0, scale: 0.85 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ delay: 0.2, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="flex flex-col items-center gap-1">
-        {/* Mark */}
-        <div className="relative flex h-14 w-14 items-center justify-center">
-          <div className="absolute inset-0 rounded-lg bg-white/10 backdrop-blur-xl border border-white/20" />
-          <Sparkles className="relative z-10 h-6 w-6 text-[var(--color-accent)]" />
-        </div>
-        {/* Wordmark */}
-        <h1 className="mt-2 text-[clamp(1.5rem,3vw,2.5rem)] font-black tracking-[-0.04em] uppercase leading-none">
-          <span className="text-white">Talent</span>
-          <span className="text-[var(--color-accent)]">One</span>
+      <div className="flex flex-col items-center gap-0">
+        <h1 className="text-[clamp(1.6rem,3.5vw,2.8rem)] font-black tracking-[-0.05em] uppercase leading-none">
+          <span className="text-[#1a1a1a]">Talent</span>
+          <span className="text-[#1a1a1a]/40">One</span>
         </h1>
-        <p className="text-[10px] uppercase tracking-[0.35em] text-white/40 font-medium">
-          Talent Intelligence
-        </p>
+        <div className="mt-1.5 h-px w-12 bg-[#1a1a1a]/15" />
       </div>
     </motion.div>
   );
 }
 
 // ────────────────────────────────────────────────────
-// Scan-line decoration
+// Bottom branding bar
 // ────────────────────────────────────────────────────
-function Scanlines() {
+function BottomBranding() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-40 opacity-[0.03]">
-      <div
-        className="h-full w-full"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.08) 2px, rgba(255,255,255,0.08) 4px)",
-        }}
-      />
+    <div className="fixed bottom-0 left-0 z-50 flex w-full items-center justify-center border-t border-[#1a1a1a]/[0.06] bg-[#fafaf8]/80 backdrop-blur-sm py-4">
+      <span className="text-xs font-medium uppercase tracking-[0.2em] text-[#1a1a1a]/35">
+        TalentOne — Quantifying Semantic Match
+      </span>
     </div>
   );
 }
 
 // ────────────────────────────────────────────────────
-// CTA button
+// Typographic menu (revealed on hover)
 // ────────────────────────────────────────────────────
-function CTAButton({
-  children,
-  icon,
-  variant,
+function TypeMenu({
+  items,
+  align,
 }: {
-  children: React.ReactNode;
-  icon: React.ReactNode;
-  variant: "dark" | "light";
+  items: string[];
+  align: "left" | "right";
 }) {
-  const isDark = variant === "dark";
   return (
-    <motion.button
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 8 }}
-      transition={EASE_OUT}
-      whileHover={{ scale: 1.04 }}
-      whileTap={{ scale: 0.97 }}
-      className={`group relative flex items-center gap-3 rounded-full px-8 py-4 text-sm font-bold uppercase tracking-[0.15em] transition-colors ${
-        isDark
-          ? "bg-white text-[var(--color-void)] hover:bg-[var(--color-accent)]"
-          : "bg-[var(--color-void)] text-white hover:bg-[var(--color-accent)] hover:text-[var(--color-void)]"
-      }`}
+    <nav
+      className={`flex flex-col gap-2 md:gap-3 ${align === "left" ? "items-start text-left" : "items-end text-right"}`}
     >
-      {icon}
-      {children}
-      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-    </motion.button>
+      {items.map((label, i) => (
+        <motion.a
+          key={label}
+          href="#"
+          variants={FADE_UP}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          transition={{
+            duration: 0.45,
+            delay: i * STAGGER,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          className="group relative block cursor-pointer"
+        >
+          <span className="block text-[clamp(1.8rem,5.5vw,4.5rem)] font-black uppercase leading-[0.95] tracking-[-0.03em] text-[#1a1a1a] transition-colors duration-300 group-hover:text-[#1a1a1a]/40">
+            {label}
+          </span>
+          {/* Underline on item hover */}
+          <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-[#1a1a1a] transition-all duration-300 ease-out group-hover:w-full" />
+        </motion.a>
+      ))}
+    </nav>
   );
 }
 
@@ -110,159 +118,109 @@ function CTAButton({
 function Panel({
   side,
   active,
+  dimmed,
   widthPct,
-  headline,
-  subtext,
-  ctaLabel,
-  ctaIcon,
+  idleTitle,
+  menuItems,
   onEnter,
   onLeave,
   isMobile,
 }: {
   side: "left" | "right";
   active: boolean;
+  dimmed: boolean;
   widthPct: number;
-  headline: string;
-  subtext: string;
-  ctaLabel: string;
-  ctaIcon: React.ReactNode;
+  idleTitle: string;
+  menuItems: string[];
   onEnter: () => void;
   onLeave: () => void;
   isMobile: boolean;
 }) {
   const isLeft = side === "left";
-  const bg = isLeft ? "bg-[var(--color-void)]" : "bg-[var(--color-paper)]";
-  const text = isLeft ? "text-white" : "text-[var(--color-void)]";
-  const mutedText = isLeft ? "text-white/50" : "text-[var(--color-void)]/50";
-  const borderColor = isLeft ? "border-white/[0.06]" : "border-black/[0.06]";
-  const variant = isLeft ? "dark" : "light";
-  const iconComponent = isLeft ? (
-    <Building2 className="h-5 w-5" />
-  ) : (
-    <User className="h-5 w-5" />
-  );
+
+  // Subtle tonal difference between left and right
+  const bg = isLeft ? "bg-[#f0efeb]" : "bg-[#fafaf8]";
 
   return (
     <motion.div
-      className={`relative flex flex-col items-center justify-center overflow-hidden ${bg} ${text}`}
+      className={`relative flex flex-col items-center justify-center overflow-hidden ${bg} cursor-pointer`}
       style={
         isMobile
-          ? { width: "100%", height: active ? "65vh" : "35vh" }
+          ? { width: "100%", height: active ? "65vh" : dimmed ? "35vh" : "50vh" }
           : { height: "100vh" }
       }
       animate={
         isMobile
-          ? { height: active ? "65vh" : "35vh" }
+          ? { height: active ? "65vh" : dimmed ? "35vh" : "50vh" }
           : { width: `${widthPct}%` }
       }
       transition={SPRING}
       onMouseEnter={isMobile ? undefined : onEnter}
       onMouseLeave={isMobile ? undefined : onLeave}
-      onClick={isMobile ? onEnter : undefined}
+      onClick={isMobile ? (active ? onLeave : onEnter) : undefined}
     >
-      {/* Subtle grid */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage: `linear-gradient(${isLeft ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"} 1px, transparent 1px), linear-gradient(90deg, ${isLeft ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)"} 1px, transparent 1px)`,
-          backgroundSize: "60px 60px",
-        }}
-      />
-
-      {/* Edge line */}
+      {/* Divider edge */}
       {!isMobile && (
         <div
-          className={`absolute ${isLeft ? "right-0" : "left-0"} top-0 h-full w-px ${borderColor} bg-current opacity-10`}
+          className={`absolute ${isLeft ? "right-0" : "left-0"} top-0 h-full w-px bg-[#1a1a1a]/[0.06]`}
         />
       )}
+      {isMobile && (
+        <div className="absolute bottom-0 left-0 h-px w-full bg-[#1a1a1a]/[0.06]" />
+      )}
 
-      {/* Content */}
+      {/* Content container */}
       <div
-        className={`relative z-10 flex max-w-md flex-col ${isLeft ? "items-start text-left" : "items-end text-right"} gap-6 px-8 md:px-12 lg:px-16`}
+        className={`relative z-10 flex w-full max-w-2xl flex-col px-8 md:px-14 lg:px-20 ${
+          isLeft ? "items-start text-left" : "items-end text-right"
+        }`}
       >
-        {/* Icon badge */}
-        <motion.div
-          className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-            isLeft
-              ? "bg-white/10 text-white/60"
-              : "bg-black/5 text-black/40"
-          }`}
-          animate={{ opacity: active ? 1 : 0.5, scale: active ? 1 : 0.9 }}
-          transition={EASE_OUT}
-        >
-          {iconComponent}
-        </motion.div>
-
-        {/* Headline */}
-        <motion.h2
-          className="text-[clamp(1.2rem,2.5vw,2rem)] font-black uppercase tracking-[-0.02em] leading-[1.1]"
-          animate={{ opacity: active ? 1 : 0.7 }}
-          transition={EASE_OUT}
-        >
-          {headline}
-        </motion.h2>
-
-        {/* Subtext */}
-        <motion.p
-          className={`max-w-xs text-sm leading-relaxed font-medium ${mutedText}`}
-          animate={{
-            opacity: active ? 0.9 : 0.4,
-            y: active ? 0 : 4,
-          }}
-          transition={EASE_OUT}
-        >
-          {subtext}
-        </motion.p>
-
-        {/* CTA */}
-        <AnimatePresence>
-          {active && (
-            <CTAButton icon={ctaIcon} variant={variant}>
-              {ctaLabel}
-            </CTAButton>
+        <AnimatePresence mode="wait">
+          {!active ? (
+            /* ── Idle: massive title ── */
+            <motion.h2
+              key="idle"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: dimmed ? 0.25 : 0.85, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="text-[clamp(2.2rem,7vw,6rem)] font-black uppercase leading-[0.9] tracking-[-0.04em] text-[#1a1a1a]"
+            >
+              {idleTitle.split(" ").map((word, i) => (
+                <span key={i} className="block">
+                  {word}
+                </span>
+              ))}
+            </motion.h2>
+          ) : (
+            /* ── Active: typographic menu ── */
+            <motion.div
+              key="menu"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <TypeMenu items={menuItems} align={isLeft ? "left" : "right"} />
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Corner label */}
+      {/* Corner index */}
       <div
-        className={`absolute ${isLeft ? "bottom-6 left-8" : "bottom-6 right-8"} flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.3em] ${mutedText}`}
+        className={`absolute ${isLeft ? "top-6 left-8 md:top-8 md:left-10" : "top-6 right-8 md:top-8 md:right-10"}`}
       >
-        <span>{isLeft ? "Enterprise" : "Candidates"}</span>
-        <div className={`h-px w-6 ${isLeft ? "bg-white/20" : "bg-black/20"}`} />
-      </div>
-    </motion.div>
-  );
-}
-
-// ────────────────────────────────────────────────────
-// Bottom subtle prompt (desktop)
-// ────────────────────────────────────────────────────
-function HoverPrompt({ hoveredSide }: { hoveredSide: Side }) {
-  return (
-    <motion.div
-      className="pointer-events-none fixed bottom-8 left-1/2 z-50 -translate-x-1/2"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: hoveredSide ? 0 : 1 }}
-      transition={{ delay: hoveredSide ? 0 : 1.2, duration: 0.6 }}
-    >
-      <div className="flex flex-col items-center gap-2 text-white/25">
-        <span className="text-[10px] font-medium uppercase tracking-[0.3em]">
-          Hover to explore
+        <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#1a1a1a]/25">
+          {isLeft ? "01" : "02"}
         </span>
-        <motion.div
-          animate={{ y: [0, 4, 0] }}
-          transition={{ repeat: Infinity, duration: 1.8 }}
-        >
-          <ChevronDown className="h-4 w-4" />
-        </motion.div>
       </div>
     </motion.div>
   );
 }
 
 // ────────────────────────────────────────────────────
-// Main component
+// Main
 // ────────────────────────────────────────────────────
 export default function SplitHero() {
   const [hoveredSide, setHoveredSide] = useState<Side>(null);
@@ -287,21 +245,19 @@ export default function SplitHero() {
         : RESTING;
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden">
-      <Scanlines />
+    <main className="relative h-screen w-screen overflow-hidden bg-[#f5f4f0]">
       <Logo />
-      <HoverPrompt hoveredSide={hoveredSide} />
+      <BottomBranding />
 
       {/* ── Desktop: horizontal split ── */}
       <div className="hidden md:flex h-full w-full flex-row">
         <Panel
           side="left"
           active={hoveredSide === "left"}
+          dimmed={hoveredSide === "right"}
           widthPct={leftWidth}
-          headline="For Enterprise"
-          subtext="Quantify Semantic Match. Eliminate False Positives. Capture Alpha in Global Talent."
-          ctaLabel="Book an Audit"
-          ctaIcon={<Building2 className="h-4 w-4" />}
+          idleTitle="For Enterprise"
+          menuItems={ENTERPRISE_MENU}
           onEnter={handleEnter("left")}
           onLeave={handleLeave}
           isMobile={false}
@@ -309,11 +265,10 @@ export default function SplitHero() {
         <Panel
           side="right"
           active={hoveredSide === "right"}
+          dimmed={hoveredSide === "left"}
           widthPct={rightWidth}
-          headline="For Applicants"
-          subtext="Bypass Brittle ATS Filters. Let Your True Vectors Speak."
-          ctaLabel="Upload Resume"
-          ctaIcon={<Upload className="h-4 w-4" />}
+          idleTitle="For Applicants"
+          menuItems={APPLICANT_MENU}
           onEnter={handleEnter("right")}
           onLeave={handleLeave}
           isMobile={false}
@@ -325,11 +280,10 @@ export default function SplitHero() {
         <Panel
           side="left"
           active={hoveredSide === "left"}
+          dimmed={hoveredSide === "right"}
           widthPct={50}
-          headline="For Enterprise"
-          subtext="Quantify Semantic Match. Eliminate False Positives. Capture Alpha in Global Talent."
-          ctaLabel="Book an Audit"
-          ctaIcon={<Building2 className="h-4 w-4" />}
+          idleTitle="For Enterprise"
+          menuItems={ENTERPRISE_MENU}
           onEnter={handleEnter("left")}
           onLeave={handleLeave}
           isMobile={true}
@@ -337,11 +291,10 @@ export default function SplitHero() {
         <Panel
           side="right"
           active={hoveredSide === "right"}
+          dimmed={hoveredSide === "left"}
           widthPct={50}
-          headline="For Applicants"
-          subtext="Bypass Brittle ATS Filters. Let Your True Vectors Speak."
-          ctaLabel="Upload Resume"
-          ctaIcon={<Upload className="h-4 w-4" />}
+          idleTitle="For Applicants"
+          menuItems={APPLICANT_MENU}
           onEnter={handleEnter("right")}
           onLeave={handleLeave}
           isMobile={true}
