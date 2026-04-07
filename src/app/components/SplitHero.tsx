@@ -47,29 +47,6 @@ function BottomBranding() {
   );
 }
 
-// ────────────────────────────────────────────────────
-// Contextual subtext (bottom-left of left panel)
-// ────────────────────────────────────────────────────
-function Subtext() {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 0.4, duration: 0.8 }}
-      className="absolute bottom-32 left-12 z-10 max-w-xs"
-    >
-      <p className="text-sm font-semibold text-[#1A1A1A] leading-snug">
-        Talent Intelligence
-      </p>
-      <p className="mt-1.5 text-sm leading-relaxed text-[#1A1A1A]/40">
-        Quantifying Semantic Match.
-        <br />
-        We help enterprise HR eliminate false positives and capture alpha in
-        global talent via 3,072-dimensional vector retrieval.
-      </p>
-    </motion.div>
-  );
-}
 
 // ────────────────────────────────────────────────────
 // Small top-corner nav menu (revealed on hover)
@@ -160,8 +137,6 @@ function Panel({
         <div className="absolute bottom-0 left-0 right-0 h-px bg-[#1A1A1A]/10" />
       )}
 
-      {/* Left panel: subtext (always visible) */}
-      {isLeft && !isMobile && <Subtext />}
 
       {/* ── Idle title (centered vertically) ── */}
       <AnimatePresence>
