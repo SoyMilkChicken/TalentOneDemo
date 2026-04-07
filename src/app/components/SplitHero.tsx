@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ────────────────────────────────────────────────────
-// Layout constants
+// Layout
 // ────────────────────────────────────────────────────
 const EXPANDED = 65;
 const COLLAPSED = 35;
@@ -24,7 +24,7 @@ const ENTERPRISE_MENU: MenuItem[] = [
   { label: "Audit Engine" },
   { label: "Architecture" },
   { label: "Case Study", sup: "01" },
-  { label: "Contact" },
+  { label: "Contact Sales" },
 ];
 
 const APPLICANT_MENU: MenuItem[] = [
@@ -35,55 +35,66 @@ const APPLICANT_MENU: MenuItem[] = [
 ];
 
 // ────────────────────────────────────────────────────
-// Fixed footer branding
+// Massive bottom branding — bleeds off viewport
 // ────────────────────────────────────────────────────
-function Footer() {
+function BottomBranding() {
   return (
-    <div className="pointer-events-none fixed bottom-8 left-8 right-8 z-50 flex items-center justify-between">
-      <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#1A1A1A]/30">
+    <div className="pointer-events-none absolute bottom-0 left-0 z-40 w-full overflow-hidden">
+      <h1 className="whitespace-nowrap text-[15vw] font-black uppercase leading-[0.75] tracking-tighter text-[#1A1A1A]">
         TalentOne
-      </span>
-      <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#1A1A1A]/30">
-        Quantifying Semantic Match
-      </span>
+      </h1>
     </div>
   );
 }
 
 // ────────────────────────────────────────────────────
-// Typographic menu (revealed on hover)
+// Contextual subtext (bottom-left of left panel)
 // ────────────────────────────────────────────────────
-function TypeMenu({
-  items,
-  align,
-}: {
-  items: MenuItem[];
-  align: "left" | "right";
-}) {
+function Subtext() {
   return (
-    <nav
-      className={`flex flex-col gap-1 ${
-        align === "left" ? "items-start text-left" : "items-end text-right"
-      }`}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.4, duration: 0.8 }}
+      className="absolute bottom-32 left-12 z-10 max-w-xs"
     >
+      <p className="text-sm font-semibold text-[#1A1A1A] leading-snug">
+        Talent Intelligence
+      </p>
+      <p className="mt-1.5 text-sm leading-relaxed text-[#1A1A1A]/40">
+        Quantifying Semantic Match.
+        <br />
+        We help enterprise HR eliminate false positives and capture alpha in
+        global talent via 3,072-dimensional vector retrieval.
+      </p>
+    </motion.div>
+  );
+}
+
+// ────────────────────────────────────────────────────
+// Small top-corner nav menu (revealed on hover)
+// ────────────────────────────────────────────────────
+function NavMenu({ items }: { items: MenuItem[] }) {
+  return (
+    <nav className="flex flex-col gap-0.5">
       {items.map((item, i) => (
         <motion.a
           key={item.label}
           href="#"
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
+          exit={{ opacity: 0, y: -8 }}
           transition={{
-            duration: 0.5,
-            delay: i * 0.06,
+            duration: 0.4,
+            delay: i * 0.05,
             ease: CUBIC,
           }}
-          className="group relative block cursor-pointer"
+          className="group block cursor-pointer"
         >
-          <span className="block text-[clamp(2.4rem,7vw,6.5rem)] font-bold uppercase leading-[0.85] tracking-[-0.03em] text-[#1A1A1A] transition-opacity duration-300 group-hover:opacity-35">
+          <span className="text-2xl font-bold leading-tight text-[#1A1A1A] transition-opacity duration-200 group-hover:opacity-35">
             {item.label}
             {item.sup && (
-              <sup className="ml-2 inline-block align-top text-[clamp(0.6rem,1.2vw,1rem)] font-normal tracking-[0.05em] text-[#1A1A1A]/40">
+              <sup className="ml-0.5 text-[0.55em] font-normal text-[#1A1A1A]/40 align-super">
                 ({item.sup})
               </sup>
             )}
@@ -119,10 +130,11 @@ function Panel({
   isMobile: boolean;
 }) {
   const isLeft = side === "left";
+  const bg = isLeft ? "bg-white" : "bg-gray-100";
 
   return (
     <motion.div
-      className="relative flex flex-col items-center justify-center overflow-hidden bg-[#F5F5F5] cursor-pointer"
+      className={`relative flex flex-col overflow-hidden ${bg} cursor-pointer`}
       style={
         isMobile
           ? { width: "100%", height: active ? "65vh" : dimmed ? "35vh" : "50vh" }
@@ -144,53 +156,56 @@ function Panel({
           className={`absolute ${isLeft ? "right-0" : "left-0"} top-0 h-full w-px bg-[#1A1A1A]/10`}
         />
       )}
-      {isMobile && !active && (
-        <div className="absolute bottom-0 left-8 right-8 h-px bg-[#1A1A1A]/10" />
+      {isMobile && (
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-[#1A1A1A]/10" />
       )}
 
-      {/* Content */}
-      <div
-        className={`relative z-10 flex w-full max-w-3xl flex-col px-8 md:px-14 lg:px-20 ${
-          isLeft ? "items-start text-left" : "items-end text-right"
-        }`}
-      >
-        <AnimatePresence mode="wait">
-          {!active ? (
-            /* ── Idle: massive title ── */
-            <motion.h2
-              key="idle-title"
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: dimmed ? 0.15 : 0.8, y: 0 }}
-              exit={{ opacity: 0, y: -40 }}
-              transition={{ duration: 0.45, ease: CUBIC }}
-              className="select-none text-[clamp(2.5rem,8vw,7rem)] font-bold uppercase leading-[0.85] tracking-[-0.04em] text-[#1A1A1A]"
-            >
+      {/* Left panel: subtext (always visible) */}
+      {isLeft && !isMobile && <Subtext />}
+
+      {/* ── Idle title (centered vertically) ── */}
+      <AnimatePresence>
+        {!active && (
+          <motion.div
+            key="idle"
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: dimmed ? 0.12 : 1 }}
+            exit={{ opacity: 0, y: -30 }}
+            transition={{ duration: 0.4, ease: CUBIC }}
+          >
+            <h2 className="pointer-events-none select-none text-center text-[clamp(2rem,5vw,4.5rem)] font-bold uppercase leading-[0.9] tracking-[-0.03em] text-[#1A1A1A]/80">
               {idleTitle.split(" ").map((word, i) => (
                 <span key={i} className="block">
                   {word}
                 </span>
               ))}
-            </motion.h2>
-          ) : (
-            /* ── Active: typographic menu ── */
-            <motion.div
-              key="menu"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, transition: { duration: 0.2 } }}
-              transition={{ duration: 0.15 }}
-            >
-              <TypeMenu items={menuItems} align={isLeft ? "left" : "right"} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+            </h2>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Active: small nav in top-left corner ── */}
+      <AnimatePresence>
+        {active && (
+          <motion.div
+            key="menu"
+            className="absolute top-10 left-10 md:top-12 md:left-12 z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.15 } }}
+            transition={{ duration: 0.1 }}
+          >
+            <NavMenu items={menuItems} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
 
 // ────────────────────────────────────────────────────
-// Main export
+// Main
 // ────────────────────────────────────────────────────
 export default function SplitHero() {
   const [hoveredSide, setHoveredSide] = useState<Side>(null);
@@ -215,8 +230,9 @@ export default function SplitHero() {
         : RESTING;
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-[#F5F5F5]">
-      <Footer />
+    <main className="relative h-screen w-screen overflow-hidden bg-white">
+      {/* Massive bottom bleed branding */}
+      <BottomBranding />
 
       {/* ── Desktop: horizontal split ── */}
       <div className="hidden md:flex h-full w-full flex-row">

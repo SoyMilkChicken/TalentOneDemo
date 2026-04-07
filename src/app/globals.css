@@ -2,7 +2,7 @@
 
 @theme inline {
   --font-sans: var(--font-inter);
-  --color-background: #F5F5F5;
+  --color-background: #ffffff;
   --color-foreground: #1A1A1A;
 }
 
@@ -21,13 +21,13 @@ body {
   font-family: var(--font-inter), "Inter", "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #F5F5F5;
+  background: #ffffff;
   color: #1A1A1A;
 }
 
 ::selection {
   background: #1A1A1A;
-  color: #F5F5F5;
+  color: #ffffff;
 }
 
 a {
