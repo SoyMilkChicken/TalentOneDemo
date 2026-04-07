@@ -4,69 +4,47 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ────────────────────────────────────────────────────
-// Constants
+// Layout constants
 // ────────────────────────────────────────────────────
 const EXPANDED = 65;
 const COLLAPSED = 35;
 const RESTING = 50;
 
-const SPRING = { type: "spring" as const, stiffness: 180, damping: 28, mass: 0.9 };
-const FADE_UP = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-};
-const STAGGER = 0.07;
+const SPRING = { type: "spring" as const, stiffness: 160, damping: 26, mass: 1 };
+const CUBIC = [0.16, 1, 0.3, 1] as const;
 
 type Side = "left" | "right" | null;
 
 // ────────────────────────────────────────────────────
 // Menu data
 // ────────────────────────────────────────────────────
-const ENTERPRISE_MENU = [
-  "Audit Engine",
-  "Architecture",
-  "SYSTEX Case Study",
-  "Contact Sales",
+type MenuItem = { label: string; sup?: string };
+
+const ENTERPRISE_MENU: MenuItem[] = [
+  { label: "Audit Engine" },
+  { label: "Architecture" },
+  { label: "Case Study", sup: "01" },
+  { label: "Contact" },
 ];
 
-const APPLICANT_MENU = [
-  "Upload Resume",
-  "Vector Analysis",
-  "FAQ",
-  "Contact Us",
+const APPLICANT_MENU: MenuItem[] = [
+  { label: "Upload Resume" },
+  { label: "Vector Analysis" },
+  { label: "FAQ" },
+  { label: "Contact Us" },
 ];
 
 // ────────────────────────────────────────────────────
-// Center Logo
+// Fixed footer branding
 // ────────────────────────────────────────────────────
-function Logo() {
+function Footer() {
   return (
-    <motion.div
-      className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center"
-      initial={{ opacity: 0, scale: 0.85 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 0.2, duration: 0.9, ease: [0.16, 1, 0.3, 1] as const }}
-    >
-      <div className="flex flex-col items-center gap-0">
-        <h1 className="text-[clamp(1.6rem,3.5vw,2.8rem)] font-black tracking-[-0.05em] uppercase leading-none">
-          <span className="text-[#1a1a1a]">Talent</span>
-          <span className="text-[#1a1a1a]/40">One</span>
-        </h1>
-        <div className="mt-1.5 h-px w-12 bg-[#1a1a1a]/15" />
-      </div>
-    </motion.div>
-  );
-}
-
-// ────────────────────────────────────────────────────
-// Bottom branding bar
-// ────────────────────────────────────────────────────
-function BottomBranding() {
-  return (
-    <div className="fixed bottom-0 left-0 z-50 flex w-full items-center justify-center border-t border-[#1a1a1a]/[0.06] bg-[#fafaf8]/80 backdrop-blur-sm py-4">
-      <span className="text-xs font-medium uppercase tracking-[0.2em] text-[#1a1a1a]/35">
-        TalentOne — Quantifying Semantic Match
+    <div className="pointer-events-none fixed bottom-8 left-8 right-8 z-50 flex items-center justify-between">
+      <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#1A1A1A]/30">
+        TalentOne
+      </span>
+      <span className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#1A1A1A]/30">
+        Quantifying Semantic Match
       </span>
     </div>
   );
@@ -79,33 +57,37 @@ function TypeMenu({
   items,
   align,
 }: {
-  items: string[];
+  items: MenuItem[];
   align: "left" | "right";
 }) {
   return (
     <nav
-      className={`flex flex-col gap-2 md:gap-3 ${align === "left" ? "items-start text-left" : "items-end text-right"}`}
+      className={`flex flex-col gap-1 ${
+        align === "left" ? "items-start text-left" : "items-end text-right"
+      }`}
     >
-      {items.map((label, i) => (
+      {items.map((item, i) => (
         <motion.a
-          key={label}
+          key={item.label}
           href="#"
-          variants={FADE_UP}
-          initial="initial"
-          animate="animate"
-          exit="exit"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
           transition={{
-            duration: 0.45,
-            delay: i * STAGGER,
-            ease: [0.16, 1, 0.3, 1] as const,
+            duration: 0.5,
+            delay: i * 0.06,
+            ease: CUBIC,
           }}
           className="group relative block cursor-pointer"
         >
-          <span className="block text-[clamp(1.8rem,5.5vw,4.5rem)] font-black uppercase leading-[0.95] tracking-[-0.03em] text-[#1a1a1a] transition-colors duration-300 group-hover:text-[#1a1a1a]/40">
-            {label}
+          <span className="block text-[clamp(2.4rem,7vw,6.5rem)] font-bold uppercase leading-[0.85] tracking-[-0.03em] text-[#1A1A1A] transition-opacity duration-300 group-hover:opacity-35">
+            {item.label}
+            {item.sup && (
+              <sup className="ml-2 inline-block align-top text-[clamp(0.6rem,1.2vw,1rem)] font-normal tracking-[0.05em] text-[#1A1A1A]/40">
+                ({item.sup})
+              </sup>
+            )}
           </span>
-          {/* Underline on item hover */}
-          <span className="absolute -bottom-1 left-0 h-[2px] w-0 bg-[#1a1a1a] transition-all duration-300 ease-out group-hover:w-full" />
         </motion.a>
       ))}
     </nav>
@@ -131,19 +113,16 @@ function Panel({
   dimmed: boolean;
   widthPct: number;
   idleTitle: string;
-  menuItems: string[];
+  menuItems: MenuItem[];
   onEnter: () => void;
   onLeave: () => void;
   isMobile: boolean;
 }) {
   const isLeft = side === "left";
 
-  // Subtle tonal difference between left and right
-  const bg = isLeft ? "bg-[#f0efeb]" : "bg-[#fafaf8]";
-
   return (
     <motion.div
-      className={`relative flex flex-col items-center justify-center overflow-hidden ${bg} cursor-pointer`}
+      className="relative flex flex-col items-center justify-center overflow-hidden bg-[#F5F5F5] cursor-pointer"
       style={
         isMobile
           ? { width: "100%", height: active ? "65vh" : dimmed ? "35vh" : "50vh" }
@@ -159,19 +138,19 @@ function Panel({
       onMouseLeave={isMobile ? undefined : onLeave}
       onClick={isMobile ? (active ? onLeave : onEnter) : undefined}
     >
-      {/* Divider edge */}
+      {/* Hair-thin divider */}
       {!isMobile && (
         <div
-          className={`absolute ${isLeft ? "right-0" : "left-0"} top-0 h-full w-px bg-[#1a1a1a]/[0.06]`}
+          className={`absolute ${isLeft ? "right-0" : "left-0"} top-0 h-full w-px bg-[#1A1A1A]/10`}
         />
       )}
-      {isMobile && (
-        <div className="absolute bottom-0 left-0 h-px w-full bg-[#1a1a1a]/[0.06]" />
+      {isMobile && !active && (
+        <div className="absolute bottom-0 left-8 right-8 h-px bg-[#1A1A1A]/10" />
       )}
 
-      {/* Content container */}
+      {/* Content */}
       <div
-        className={`relative z-10 flex w-full max-w-2xl flex-col px-8 md:px-14 lg:px-20 ${
+        className={`relative z-10 flex w-full max-w-3xl flex-col px-8 md:px-14 lg:px-20 ${
           isLeft ? "items-start text-left" : "items-end text-right"
         }`}
       >
@@ -179,12 +158,12 @@ function Panel({
           {!active ? (
             /* ── Idle: massive title ── */
             <motion.h2
-              key="idle"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: dimmed ? 0.25 : 0.85, y: 0 }}
-              exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }}
-              className="text-[clamp(2.2rem,7vw,6rem)] font-black uppercase leading-[0.9] tracking-[-0.04em] text-[#1a1a1a]"
+              key="idle-title"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: dimmed ? 0.15 : 0.8, y: 0 }}
+              exit={{ opacity: 0, y: -40 }}
+              transition={{ duration: 0.45, ease: CUBIC }}
+              className="select-none text-[clamp(2.5rem,8vw,7rem)] font-bold uppercase leading-[0.85] tracking-[-0.04em] text-[#1A1A1A]"
             >
               {idleTitle.split(" ").map((word, i) => (
                 <span key={i} className="block">
@@ -198,29 +177,20 @@ function Panel({
               key="menu"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              exit={{ opacity: 0, transition: { duration: 0.2 } }}
+              transition={{ duration: 0.15 }}
             >
               <TypeMenu items={menuItems} align={isLeft ? "left" : "right"} />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-
-      {/* Corner index */}
-      <div
-        className={`absolute ${isLeft ? "top-6 left-8 md:top-8 md:left-10" : "top-6 right-8 md:top-8 md:right-10"}`}
-      >
-        <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#1a1a1a]/25">
-          {isLeft ? "01" : "02"}
-        </span>
-      </div>
     </motion.div>
   );
 }
 
 // ────────────────────────────────────────────────────
-// Main
+// Main export
 // ────────────────────────────────────────────────────
 export default function SplitHero() {
   const [hoveredSide, setHoveredSide] = useState<Side>(null);
@@ -245,9 +215,8 @@ export default function SplitHero() {
         : RESTING;
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-[#f5f4f0]">
-      <Logo />
-      <BottomBranding />
+    <main className="relative h-screen w-screen overflow-hidden bg-[#F5F5F5]">
+      <Footer />
 
       {/* ── Desktop: horizontal split ── */}
       <div className="hidden md:flex h-full w-full flex-row">
