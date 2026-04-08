@@ -40,7 +40,7 @@ const APPLICANT_MENU: MenuItem[] = [
 // ────────────────────────────────────────────────────
 function BottomBranding() {
   return (
-    <div className="pointer-events-none absolute bottom-0 left-0 z-0 w-full overflow-hidden text-center">
+    <div className="pointer-events-none absolute bottom-0 left-0 z-20 w-full overflow-hidden text-center">
       <h1 className="whitespace-nowrap text-[15vw] font-black uppercase leading-[0.75] tracking-tighter text-[#1A1A1A]">
         TalentOne
       </h1>
