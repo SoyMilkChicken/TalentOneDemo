@@ -22,7 +22,7 @@ type Side = "left" | "right" | null;
 type MenuItem = { label: string; sup?: string; href: string };
 
 const ENTERPRISE_MENU: MenuItem[] = [
-  { label: "Audit Engine", href: "#audit" },
+  { label: "Built By", href: "#built-by" },
   { label: "Architecture", href: "#architecture" },
   { label: "Case Study", sup: "01", href: "#case-study" },
   { label: "Contact Sales", href: "#contact" },

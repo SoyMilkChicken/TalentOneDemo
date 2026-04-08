@@ -22,12 +22,12 @@ export default function CaseStudy() {
       {/* ── Header ── */}
       <div>
         <p className="text-xs font-medium uppercase tracking-[0.3em] text-[#F5F5F5]/30 mb-4">
-          Case Study (01)
+          Case Study
         </p>
         <h2 className="text-[clamp(2.5rem,7vw,7rem)] font-black uppercase leading-[0.85] tracking-tighter text-[#F5F5F5]">
-          Systex
+          What the ATS
           <br />
-          <span className="text-[#F5F5F5]/40">Enterprise Validation</span>
+          <span className="text-[#F5F5F5]/40">Failed to Do</span>
         </h2>
       </div>
 
