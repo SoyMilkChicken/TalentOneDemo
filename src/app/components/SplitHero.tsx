@@ -159,33 +159,10 @@ function DesktopPanel({
         className={`absolute ${isLeft ? "right-0" : "left-0"} top-0 h-full w-px bg-[#1A1A1A]/10 z-10`}
       />
 
-      {/* Idle title */}
-      <AnimatePresence mode="wait">
-        {!active && (
-          <motion.div
-            key="idle"
-            className="absolute inset-0 flex items-center justify-center overflow-hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: dimmed ? 0.1 : 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: EASE_OUT }}
-          >
-            <div className="overflow-hidden">
-              <motion.h2
-                initial={{ y: "100%" }}
-                animate={{ y: "0%" }}
-                exit={{ y: "-110%" }}
-                transition={{ duration: 0.6, ease: CUBIC }}
-                className="pointer-events-none select-none text-center text-[clamp(2rem,5vw,4.5rem)] font-bold uppercase leading-[0.9] tracking-[-0.03em] text-[#1A1A1A]/80"
-              >
-                {idleTitle}
-              </motion.h2>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* Active: nav menu */}
+      {/* Idle title — only visible on hover (active state shows menu instead) */}
+
+      {/* Active: label + nav menu — revealed on hover */}
       <AnimatePresence>
         {active && (
           <motion.div
@@ -196,6 +173,17 @@ function DesktopPanel({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
+            <div className="overflow-hidden mb-4">
+              <motion.p
+                initial={{ y: "100%" }}
+                animate={{ y: "0%" }}
+                exit={{ y: "-100%" }}
+                transition={{ duration: 0.5, ease: CUBIC }}
+                className="text-xs font-medium uppercase tracking-[0.3em] text-[#1A1A1A]/35"
+              >
+                {idleTitle}
+              </motion.p>
+            </div>
             <NavMenu items={menuItems} onNavigate={onNavigate} />
           </motion.div>
         )}
