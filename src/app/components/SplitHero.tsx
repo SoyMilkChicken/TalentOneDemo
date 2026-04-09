@@ -10,7 +10,6 @@ const EXPANDED = 65;
 const COLLAPSED = 35;
 const RESTING = 50;
 
-const SPRING = { type: "spring" as const, stiffness: 120, damping: 22, mass: 1 };
 const CUBIC = [0.76, 0, 0.24, 1] as const;
 const EASE_OUT = [0.16, 1, 0.3, 1] as const;
 
@@ -36,7 +35,7 @@ const APPLICANT_MENU: MenuItem[] = [
 ];
 
 // ────────────────────────────────────────────────────
-// Massive bottom branding — static behind panels
+// Massive bottom branding
 // ────────────────────────────────────────────────────
 function BottomBranding() {
   return (
@@ -49,18 +48,22 @@ function BottomBranding() {
 }
 
 // ────────────────────────────────────────────────────
-// Clip-reveal menu item (like the reference site)
-// Each item slides up from behind a clip mask, staggered
+// Clip-reveal menu item
 // ────────────────────────────────────────────────────
 function ClipRevealItem({
   item,
   index,
   onNavigate,
+  dark = false,
 }: {
   item: MenuItem;
   index: number;
   onNavigate: () => void;
+  dark?: boolean;
 }) {
+  const color = dark ? "text-[#F5F5F5]" : "text-[#1A1A1A]";
+  const supColor = dark ? "text-[#F5F5F5]/40" : "text-[#1A1A1A]/40";
+
   return (
     <div className="overflow-hidden">
       <motion.a
@@ -76,10 +79,12 @@ function ClipRevealItem({
         }}
         className="group block cursor-pointer"
       >
-        <span className="text-2xl font-bold leading-tight text-[#1A1A1A] transition-opacity duration-300 group-hover:opacity-30">
+        <span
+          className={`text-2xl font-bold leading-tight ${color} transition-opacity duration-300 group-hover:opacity-30`}
+        >
           {item.label}
           {item.sup && (
-            <sup className="ml-0.5 text-[0.55em] font-normal text-[#1A1A1A]/40 align-super">
+            <sup className={`ml-0.5 text-[0.55em] font-normal ${supColor} align-super`}>
               ({item.sup})
             </sup>
           )}
@@ -92,9 +97,11 @@ function ClipRevealItem({
 function NavMenu({
   items,
   onNavigate,
+  dark = false,
 }: {
   items: MenuItem[];
   onNavigate: () => void;
+  dark?: boolean;
 }) {
   return (
     <nav className="flex flex-col gap-0.5">
@@ -104,6 +111,7 @@ function NavMenu({
           item={item}
           index={i}
           onNavigate={onNavigate}
+          dark={dark}
         />
       ))}
     </nav>
@@ -111,9 +119,9 @@ function NavMenu({
 }
 
 // ────────────────────────────────────────────────────
-// Panel
+// Desktop Panel (unchanged)
 // ────────────────────────────────────────────────────
-function Panel({
+function DesktopPanel({
   side,
   active,
   dimmed,
@@ -123,7 +131,6 @@ function Panel({
   onEnter,
   onLeave,
   onNavigate,
-  isMobile,
 }: {
   side: "left" | "right";
   active: boolean;
@@ -134,7 +141,6 @@ function Panel({
   onEnter: () => void;
   onLeave: () => void;
   onNavigate: () => void;
-  isMobile: boolean;
 }) {
   const isLeft = side === "left";
   const bg = isLeft ? "bg-white" : "bg-[#f0f0ee]";
@@ -142,35 +148,18 @@ function Panel({
   return (
     <motion.div
       className={`relative flex flex-col overflow-hidden ${bg} cursor-pointer`}
-      style={
-        isMobile
-          ? { width: "100%", height: active ? "65vh" : dimmed ? "35vh" : "50vh" }
-          : { height: "100vh" }
-      }
-      animate={
-        isMobile
-          ? { height: active ? "65vh" : dimmed ? "35vh" : "50vh" }
-          : { width: `${widthPct}%` }
-      }
-      transition={{
-        duration: 0.7,
-        ease: CUBIC,
-      }}
-      onMouseEnter={isMobile ? undefined : onEnter}
-      onMouseLeave={isMobile ? undefined : onLeave}
-      onClick={isMobile ? (active ? onLeave : onEnter) : undefined}
+      style={{ height: "100vh" }}
+      animate={{ width: `${widthPct}%` }}
+      transition={{ duration: 0.7, ease: CUBIC }}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
     >
       {/* Hair-thin divider */}
-      {!isMobile && (
-        <div
-          className={`absolute ${isLeft ? "right-0" : "left-0"} top-0 h-full w-px bg-[#1A1A1A]/10 z-10`}
-        />
-      )}
-      {isMobile && (
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-[#1A1A1A]/10 z-10" />
-      )}
+      <div
+        className={`absolute ${isLeft ? "right-0" : "left-0"} top-0 h-full w-px bg-[#1A1A1A]/10 z-10`}
+      />
 
-      {/* ── Idle title — clip-reveal in/out ── */}
+      {/* Idle title */}
       <AnimatePresence mode="wait">
         {!active && (
           <motion.div
@@ -196,12 +185,12 @@ function Panel({
         )}
       </AnimatePresence>
 
-      {/* ── Active: clip-reveal nav in top-left corner ── */}
+      {/* Active: nav menu */}
       <AnimatePresence>
         {active && (
           <motion.div
             key="menu"
-            className="absolute top-10 left-10 md:top-12 md:left-12 z-10"
+            className="absolute top-12 left-12 z-10"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -212,13 +201,12 @@ function Panel({
         )}
       </AnimatePresence>
 
-      {/* ── Subtle inner scale on hover (depth effect) ── */}
+      {/* Subtle inner scale */}
       <motion.div
         className="pointer-events-none absolute inset-0"
         animate={{ scale: active ? 1.03 : 1 }}
         transition={{ duration: 0.8, ease: CUBIC }}
       >
-        {/* Background grain / texture layer that scales subtly */}
         <div
           className="h-full w-full opacity-[0.015]"
           style={{
@@ -229,6 +217,95 @@ function Panel({
         />
       </motion.div>
     </motion.div>
+  );
+}
+
+// ────────────────────────────────────────────────────
+// Mobile: Full-screen toggle
+// ────────────────────────────────────────────────────
+function MobileHero({ onNavigate }: { onNavigate: () => void }) {
+  const [activePage, setActivePage] = useState<"enterprise" | "talent">(
+    "enterprise"
+  );
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const isEnterprise = activePage === "enterprise";
+  const currentMenu = isEnterprise ? ENTERPRISE_MENU : APPLICANT_MENU;
+  const currentTitle = isEnterprise ? "Enterprise" : "Talent";
+  const otherTitle = isEnterprise ? "Talent" : "Enterprise";
+  const bg = isEnterprise ? "bg-white" : "bg-[#f0f0ee]";
+
+  const handleSwitch = useCallback(() => {
+    setMenuOpen(false);
+    setActivePage((p) => (p === "enterprise" ? "talent" : "enterprise"));
+  }, []);
+
+  const handleMenuNavigate = useCallback(() => {
+    setMenuOpen(false);
+    onNavigate();
+  }, [onNavigate]);
+
+  return (
+    <div className={`relative h-full w-full ${bg} overflow-hidden`}>
+      {/* ── Center title — tap to reveal menu ── */}
+      <AnimatePresence mode="wait">
+        {!menuOpen && (
+          <motion.div
+            key={`title-${activePage}`}
+            className="absolute inset-0 flex items-center justify-center"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -30 }}
+            transition={{ duration: 0.5, ease: EASE_OUT }}
+          >
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="text-center"
+            >
+              <h2 className="text-[clamp(3rem,12vw,5rem)] font-bold uppercase leading-[0.9] tracking-[-0.03em] text-[#1A1A1A]/80">
+                {currentTitle}
+              </h2>
+              <p className="mt-3 text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A]/25">
+                Tap to explore
+              </p>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Menu — revealed on tap ── */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            key="mobile-menu"
+            className="absolute inset-0 flex flex-col justify-center px-8 z-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {/* Back button */}
+            <button
+              onClick={() => setMenuOpen(false)}
+              className="absolute top-8 left-8 text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A]/40 font-medium"
+            >
+              ← Back
+            </button>
+
+            <NavMenu items={currentMenu} onNavigate={handleMenuNavigate} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Switch button — fixed bottom-right corner ── */}
+      <button
+        onClick={handleSwitch}
+        className="absolute bottom-8 right-8 z-30 flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-[#1A1A1A]/35 font-medium transition-opacity duration-200 active:opacity-60"
+      >
+        <span>{otherTitle}</span>
+        <span className="text-lg leading-none">→</span>
+      </button>
+    </div>
   );
 }
 
@@ -260,12 +337,11 @@ export default function SplitHero() {
 
   return (
     <section id="hero" className="relative h-screen w-screen overflow-hidden bg-white">
-      {/* z-0: static bottom branding */}
       <BottomBranding />
 
-      {/* Panels on top */}
+      {/* ── Desktop: horizontal split (unchanged) ── */}
       <div className="relative z-10 hidden md:flex h-full w-full flex-row">
-        <Panel
+        <DesktopPanel
           side="left"
           active={hoveredSide === "left"}
           dimmed={hoveredSide === "right"}
@@ -275,9 +351,8 @@ export default function SplitHero() {
           onEnter={handleEnter("left")}
           onLeave={handleLeave}
           onNavigate={handleNavigate}
-          isMobile={false}
         />
-        <Panel
+        <DesktopPanel
           side="right"
           active={hoveredSide === "right"}
           dimmed={hoveredSide === "left"}
@@ -287,36 +362,12 @@ export default function SplitHero() {
           onEnter={handleEnter("right")}
           onLeave={handleLeave}
           onNavigate={handleNavigate}
-          isMobile={false}
         />
       </div>
 
-      {/* Mobile */}
-      <div className="relative z-10 flex md:hidden h-full w-full flex-col">
-        <Panel
-          side="left"
-          active={hoveredSide === "left"}
-          dimmed={hoveredSide === "right"}
-          widthPct={50}
-          idleTitle="Enterprise"
-          menuItems={ENTERPRISE_MENU}
-          onEnter={handleEnter("left")}
-          onLeave={handleLeave}
-          onNavigate={handleNavigate}
-          isMobile={true}
-        />
-        <Panel
-          side="right"
-          active={hoveredSide === "right"}
-          dimmed={hoveredSide === "left"}
-          widthPct={50}
-          idleTitle="Talent"
-          menuItems={APPLICANT_MENU}
-          onEnter={handleEnter("right")}
-          onLeave={handleLeave}
-          onNavigate={handleNavigate}
-          isMobile={true}
-        />
+      {/* ── Mobile: full-screen toggle ── */}
+      <div className="relative z-10 flex md:hidden h-full w-full">
+        <MobileHero onNavigate={handleNavigate} />
       </div>
     </section>
   );
