@@ -4,7 +4,7 @@ const TEAM = [
   {
     name: "Stan Feng",
     role: "Co-Founder & Engineering",
-    photo: null, // Placeholder — photo coming soon
+    photo: "/team/stan-feng.jpg",
   },
   {
     name: "Perry Su",
