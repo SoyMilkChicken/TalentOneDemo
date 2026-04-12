@@ -365,10 +365,12 @@ function Scene({
   nodes,
   selectedNode,
   onSelect,
+  isMobile,
 }: {
   nodes: DiagramNode[];
   selectedNode: DiagramNode | null;
   onSelect: (node: DiagramNode) => void;
+  isMobile: boolean;
 }) {
   const isPaused = selectedNode !== null;
   const isFocusMode = selectedNode !== null;
@@ -400,7 +402,7 @@ function Scene({
 
       <OrbitControls
         enablePan={false}
-        enableRotate={true}
+        enableRotate={!isMobile}
         enableZoom={false}
         rotateSpeed={0.55}
         autoRotate={selectedNode === null}
@@ -416,6 +418,7 @@ function Scene({
 
 export default function LatentSpaceCanvas() {
   const [activeNode, setActiveNode] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const nodes = useMemo(() => NODES, []);
   const orbitNodes = useMemo(
     () => nodes.filter((node) => node.id !== "job"),
@@ -426,6 +429,17 @@ export default function LatentSpaceCanvas() {
     () => (activeNode === null ? null : orbitNodes[activeNode] ?? null),
     [activeNode, orbitNodes]
   );
+
+  useEffect(() => {
+    const updateViewport = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+
+    return () => window.removeEventListener("resize", updateViewport);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -439,18 +453,20 @@ export default function LatentSpaceCanvas() {
   }, []);
 
   return (
-    <div className="relative h-full w-full touch-none select-none">
+    <div className="relative h-full w-full select-none">
       <Canvas
         dpr={[1, 1.75]}
         gl={{ antialias: true, alpha: true }}
         camera={{ position: [0, 0, 8], fov: 37 }}
         className="h-full w-full"
         onPointerMissed={() => setActiveNode(null)}
+        style={{ touchAction: "pan-y" }}
       >
         <color attach="background" args={[VOID]} />
         <Scene
           nodes={nodes}
           selectedNode={selectedNode}
+          isMobile={isMobile}
           onSelect={(node) => {
             if (node.id === "job") return;
             const nextIndex = orbitNodes.findIndex(
