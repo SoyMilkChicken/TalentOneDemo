@@ -5,10 +5,11 @@ import { motion, useScroll, useTransform } from "framer-motion";
 
 export default function HeroOverlay() {
   const { scrollY } = useScroll();
-  const [windowHeight, setWindowHeight] = useState(800);
+  const [windowHeight, setWindowHeight] = useState(() =>
+    typeof window === "undefined" ? 800 : window.innerHeight
+  );
 
   useEffect(() => {
-    setWindowHeight(window.innerHeight);
     const handleResize = () => setWindowHeight(window.innerHeight);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);

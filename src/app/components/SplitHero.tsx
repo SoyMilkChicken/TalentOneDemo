@@ -22,14 +22,14 @@ type MenuItem = { label: string; sup?: string; href: string };
 
 const ENTERPRISE_MENU: MenuItem[] = [
   { label: "Built By", href: "#built-by" },
-  { label: "Architecture", href: "#architecture" },
+  { label: "Architecture", href: "#latent-space" },
   { label: "Case Study", sup: "01", href: "#case-study" },
   { label: "Contact Sales", href: "#contact" },
 ];
 
 const APPLICANT_MENU: MenuItem[] = [
   { label: "Upload Resume", href: "#upload" },
-  { label: "Vector Analysis", href: "#analysis" },
+  { label: "Vector Analysis", href: "#latent-space" },
   { label: "FAQ", href: "#faq" },
   { label: "Contact Us", href: "#contact" },
 ];
@@ -124,7 +124,6 @@ function NavMenu({
 function DesktopPanel({
   side,
   active,
-  dimmed,
   widthPct,
   idleTitle,
   menuItems,
@@ -134,7 +133,6 @@ function DesktopPanel({
 }: {
   side: "left" | "right";
   active: boolean;
-  dimmed: boolean;
   widthPct: number;
   idleTitle: string;
   menuItems: MenuItem[];
@@ -332,7 +330,6 @@ export default function SplitHero() {
         <DesktopPanel
           side="left"
           active={hoveredSide === "left"}
-          dimmed={hoveredSide === "right"}
           widthPct={leftWidth}
           idleTitle="Enterprise"
           menuItems={ENTERPRISE_MENU}
@@ -343,7 +340,6 @@ export default function SplitHero() {
         <DesktopPanel
           side="right"
           active={hoveredSide === "right"}
-          dimmed={hoveredSide === "left"}
           widthPct={rightWidth}
           idleTitle="Talent"
           menuItems={APPLICANT_MENU}

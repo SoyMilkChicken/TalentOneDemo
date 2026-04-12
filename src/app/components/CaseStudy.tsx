@@ -9,7 +9,7 @@ const BULLETS = [
   },
   {
     title: "The Discarded Alpha",
-    text: "Highly qualified cross-lingual talent is systematically auto-rejected before human review.",
+    text: "Highly qualified candidates with non-obvious but mathematically proximate fit are systematically auto-rejected before human review.",
   },
 ];
 
