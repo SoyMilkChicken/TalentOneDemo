@@ -2,8 +2,10 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, Line, OrbitControls } from "@react-three/drei";
+import { AnimatePresence, animate, motion, useMotionValue } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import type { MotionValue } from "framer-motion";
 
 const CENTER_COLOR = "#FFFFFF";
 const ORBIT_COLOR = "#888888";
@@ -11,7 +13,9 @@ const CONNECTOR_COLOR = "#FFFFFF";
 const SECONDARY = "#F5F5F5";
 const VOID = "#0A0A0A";
 const POINTS_PER_NODE = 3072;
-const STAR_COUNT = 2000;
+const STAR_COUNT = 1500;
+const FOCUSED_NODE_SCALE = 8.8;
+const WISHING_TRAIL_POINTS = 8;
 
 type DiagramNode = {
   id: string;
@@ -146,10 +150,6 @@ function SignalLabels({
   selectedId: string | null;
   hidden: boolean;
 }) {
-  if (hidden) {
-    return null;
-  }
-
   return (
     <>
       <Html
@@ -157,7 +157,11 @@ function SignalLabels({
         center
         style={{ pointerEvents: "none" }}
       >
-        <div className="pointer-events-none whitespace-nowrap text-[18px] font-medium uppercase tracking-[0.14em] text-[#D4D4D4] md:text-[22px]">
+        <div
+          className={`pointer-events-none whitespace-nowrap text-[18px] font-medium uppercase tracking-[0.14em] text-[#D4D4D4] transition-opacity duration-300 md:text-[22px] ${
+            hidden ? "opacity-0" : "opacity-100"
+          }`}
+        >
           <span className={selectedId === "job" ? "text-[#FFFFFF]" : undefined}>
             THE JOB DESCRIPTION
           </span>
@@ -168,7 +172,11 @@ function SignalLabels({
         center
         style={{ pointerEvents: "none" }}
       >
-        <div className="pointer-events-none whitespace-nowrap text-[8px] uppercase tracking-[0.34em] text-[#888888] md:text-[10px] md:tracking-[0.42em]">
+        <div
+          className={`pointer-events-none whitespace-nowrap text-[8px] uppercase tracking-[0.34em] text-[#888888] transition-opacity duration-300 md:text-[10px] md:tracking-[0.42em] ${
+            hidden ? "opacity-0" : "opacity-100"
+          }`}
+        >
           THE BENCHMARK FOR EVERY CANDIDATE
         </div>
       </Html>
@@ -190,8 +198,8 @@ function SignalLabels({
               style={{ pointerEvents: "none" }}
             >
               <div
-                className={`pointer-events-none max-w-[10rem] px-2 text-center uppercase leading-[0.96] tracking-[0.12em] transition-opacity duration-200 md:max-w-none md:whitespace-nowrap ${
-                  selectedId === node.id
+                className={`pointer-events-none max-w-[10rem] px-2 text-center uppercase leading-[0.96] tracking-[0.12em] transition-opacity duration-300 md:max-w-none md:whitespace-nowrap ${
+                  hidden || selectedId === node.id
                     ? "text-[13px] text-[#FFFFFF] opacity-0 md:text-[16px]"
                     : "text-[13px] text-[#B3B3B3] opacity-100 md:text-[16px]"
                 }`}
@@ -228,14 +236,134 @@ function Starfield() {
         <pointsMaterial
           ref={materialRef}
           color={CENTER_COLOR}
-          size={0.015}
+          size={0.005}
           sizeAttenuation
           transparent
-          opacity={0.4}
+          opacity={0.3}
           depthWrite={false}
         />
       </points>
     </group>
+  );
+}
+
+function WishingStar() {
+  const materialRef = useRef<THREE.PointsMaterial>(null);
+  const positionRef = useRef<THREE.BufferAttribute>(null);
+  const initialPositions = useMemo(
+    () => new Float32Array(WISHING_TRAIL_POINTS * 3).fill(999),
+    []
+  );
+  const colors = useMemo(() => {
+    const values = new Float32Array(WISHING_TRAIL_POINTS * 3);
+
+    for (let index = 0; index < WISHING_TRAIL_POINTS; index += 1) {
+      const alpha = 1 - index / WISHING_TRAIL_POINTS;
+      const value = 0.45 + alpha * 0.55;
+      const stride = index * 3;
+      values[stride] = value;
+      values[stride + 1] = value;
+      values[stride + 2] = value;
+    }
+
+    return values;
+  }, []);
+  const streakRef = useRef({
+    active: false,
+    startAt: 0,
+    duration: 0.95,
+    nextAt: 0,
+    y: 0,
+    z: -18,
+    slope: 0,
+  });
+
+  useFrame((state) => {
+    const streak = streakRef.current;
+    const elapsed = state.clock.elapsedTime;
+
+    if (streak.nextAt === 0) {
+      streak.nextAt = elapsed + 5 + Math.random() * 3;
+    }
+
+    if (!streak.active && elapsed >= streak.nextAt) {
+      streak.active = true;
+      streak.startAt = elapsed;
+      streak.duration = 0.85 + Math.random() * 0.35;
+      streak.nextAt = elapsed + streak.duration + 5 + Math.random() * 3;
+      streak.y = (Math.random() - 0.5) * 9;
+      streak.z = -15 - Math.random() * 10;
+      streak.slope = (Math.random() - 0.5) * 2.2;
+    }
+
+    if (!positionRef.current || !materialRef.current) {
+      return;
+    }
+
+    if (streak.active) {
+      const progress = (elapsed - streak.startAt) / streak.duration;
+
+      if (progress >= 1) {
+        streak.active = false;
+        for (let index = 0; index < WISHING_TRAIL_POINTS; index += 1) {
+          positionRef.current.setXYZ(index, 999, 999, 999);
+        }
+        positionRef.current.needsUpdate = true;
+        materialRef.current.opacity = 0;
+        return;
+      }
+
+      const headX = -18 + progress * 36;
+      const headY = streak.y + progress * streak.slope;
+
+      for (let index = 0; index < WISHING_TRAIL_POINTS; index += 1) {
+        const lag = index / WISHING_TRAIL_POINTS;
+        positionRef.current.setXYZ(
+          index,
+          headX - lag * 3.8,
+          headY - lag * streak.slope * 0.45,
+          streak.z
+        );
+      }
+
+      positionRef.current.needsUpdate = true;
+      materialRef.current.opacity = 0.62 - progress * 0.24;
+      return;
+    }
+
+    if (materialRef.current.opacity !== 0) {
+      for (let index = 0; index < WISHING_TRAIL_POINTS; index += 1) {
+        positionRef.current.setXYZ(index, 999, 999, 999);
+      }
+      positionRef.current.needsUpdate = true;
+      materialRef.current.opacity = 0;
+    }
+  });
+
+  return (
+    <points frustumCulled={false}>
+      <bufferGeometry>
+        <bufferAttribute
+          ref={positionRef}
+          attach="attributes-position"
+          args={[initialPositions, 3]}
+        />
+        <bufferAttribute
+          attach="attributes-color"
+          args={[colors, 3]}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        ref={materialRef}
+        vertexColors
+        transparent
+        opacity={0}
+        size={0.05}
+        sizeAttenuation
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
   );
 }
 
@@ -244,18 +372,19 @@ function Node({
   isPaused,
   isSelected,
   isFocusMode,
+  focusProgress,
   onSelect,
 }: {
   node: DiagramNode;
   isPaused: boolean;
   isSelected: boolean;
   isFocusMode: boolean;
+  focusProgress: MotionValue<number>;
   onSelect: () => void;
 }) {
   const groupRef = useRef<THREE.Group>(null);
-  const lineOpacity = isFocusMode ? (isSelected ? 0.12 : 0.035) : 0.2;
-  const pointOpacity = isFocusMode ? (isSelected ? 0.24 : 0.05) : 0.95;
-  const centerOpacity = isFocusMode ? 0.12 : 1;
+  const pointMaterialRef = useRef<THREE.PointsMaterial>(null);
+  const centerMaterialRef = useRef<THREE.MeshStandardMaterial>(null);
   const phaseRef = useRef(0);
   const pointSeed = useMemo(
     () =>
@@ -272,19 +401,124 @@ function Node({
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
-    if (isPaused) return;
+    const progress = focusProgress.get();
+    const focusMode = progress > 0.001;
 
     phaseRef.current += delta;
 
     if (node.id === "job") {
-      groupRef.current.rotation.y += delta * 0.16;
+      if (!isPaused) {
+        groupRef.current.rotation.y += delta * 0.16;
+      }
+
+      const targetScale = 1 - progress * 0.08;
+      groupRef.current.scale.x = THREE.MathUtils.damp(
+        groupRef.current.scale.x,
+        targetScale,
+        6,
+        delta
+      );
+      groupRef.current.scale.y = THREE.MathUtils.damp(
+        groupRef.current.scale.y,
+        targetScale,
+        6,
+        delta
+      );
+      groupRef.current.scale.z = THREE.MathUtils.damp(
+        groupRef.current.scale.z,
+        targetScale,
+        6,
+        delta
+      );
+
+      if (centerMaterialRef.current) {
+        centerMaterialRef.current.opacity = THREE.MathUtils.damp(
+          centerMaterialRef.current.opacity,
+          1 - progress,
+          5.5,
+          delta
+        );
+      }
+
       return;
     }
 
-    groupRef.current.rotation.y += delta * 0.38;
-    groupRef.current.rotation.x =
-      Math.sin(phaseRef.current * 0.45 + node.position[0]) * 0.06;
+    const targetPosition = isSelected && focusMode
+      ? new THREE.Vector3(0, 0, 0)
+      : new THREE.Vector3(...node.position);
+    groupRef.current.position.x = THREE.MathUtils.damp(
+      groupRef.current.position.x,
+      targetPosition.x,
+      4.8,
+      delta
+    );
+    groupRef.current.position.y = THREE.MathUtils.damp(
+      groupRef.current.position.y,
+      targetPosition.y,
+      4.8,
+      delta
+    );
+    groupRef.current.position.z = THREE.MathUtils.damp(
+      groupRef.current.position.z,
+      targetPosition.z,
+      4.8,
+      delta
+    );
+
+    if (!isPaused) {
+      groupRef.current.rotation.y += delta * 0.38;
+      groupRef.current.rotation.x =
+        Math.sin(phaseRef.current * 0.45 + node.position[0]) * 0.06;
+    }
+
+    const targetScale = focusMode
+      ? isSelected
+        ? FOCUSED_NODE_SCALE
+        : 0.92
+      : 1;
+    groupRef.current.scale.x = THREE.MathUtils.damp(
+      groupRef.current.scale.x,
+      targetScale,
+      4.8,
+      delta
+    );
+    groupRef.current.scale.y = THREE.MathUtils.damp(
+      groupRef.current.scale.y,
+      targetScale,
+      4.8,
+      delta
+    );
+    groupRef.current.scale.z = THREE.MathUtils.damp(
+      groupRef.current.scale.z,
+      targetScale,
+      4.8,
+      delta
+    );
+
+    if (pointMaterialRef.current) {
+      const targetOpacity = focusMode
+        ? isSelected
+          ? 0.98
+          : 0
+        : 0.95;
+      const targetSize = focusMode && isSelected ? 0.008 : 0.015;
+
+      pointMaterialRef.current.opacity = THREE.MathUtils.damp(
+        pointMaterialRef.current.opacity,
+        targetOpacity,
+        5,
+        delta
+      );
+      pointMaterialRef.current.size = THREE.MathUtils.damp(
+        pointMaterialRef.current.size,
+        targetSize,
+        5,
+        delta
+      );
+    }
   });
+
+  const lineOpacity = isFocusMode ? 0 : 0.2;
 
   return (
     <>
@@ -303,13 +537,14 @@ function Node({
           <mesh>
             <sphereGeometry args={[node.radius, 30, 30]} />
             <meshStandardMaterial
+              ref={centerMaterialRef}
               color={CENTER_COLOR}
               emissive={CENTER_COLOR}
               emissiveIntensity={1.3}
               roughness={0.18}
               metalness={0.06}
               transparent
-              opacity={centerOpacity}
+              opacity={1}
             />
           </mesh>
         ) : (
@@ -329,11 +564,12 @@ function Node({
                 />
               </bufferGeometry>
               <pointsMaterial
+                ref={pointMaterialRef}
                 color={ORBIT_COLOR}
                 size={0.015}
                 sizeAttenuation
                 transparent
-                opacity={pointOpacity}
+                opacity={0.95}
                 depthWrite={false}
               />
             </points>
@@ -366,11 +602,13 @@ function Scene({
   selectedNode,
   onSelect,
   isMobile,
+  focusProgress,
 }: {
   nodes: DiagramNode[];
   selectedNode: DiagramNode | null;
   onSelect: (node: DiagramNode) => void;
   isMobile: boolean;
+  focusProgress: MotionValue<number>;
 }) {
   const isPaused = selectedNode !== null;
   const isFocusMode = selectedNode !== null;
@@ -378,6 +616,7 @@ function Scene({
   return (
     <>
       <Starfield />
+      <WishingStar />
 
       <ambientLight intensity={0.42} />
       <directionalLight position={[5, 6, 5]} intensity={0.78} color={SECONDARY} />
@@ -396,6 +635,7 @@ function Scene({
           isPaused={isPaused}
           isSelected={selectedNode?.id === node.id}
           isFocusMode={isFocusMode}
+          focusProgress={focusProgress}
           onSelect={() => onSelect(node)}
         />
       ))}
@@ -412,6 +652,7 @@ function Scene({
         minPolarAngle={0.01}
         maxPolarAngle={Math.PI - 0.01}
       />
+
     </>
   );
 }
@@ -419,6 +660,7 @@ function Scene({
 export default function LatentSpaceCanvas() {
   const [activeNode, setActiveNode] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const focusProgress = useMotionValue(0);
   const nodes = useMemo(() => NODES, []);
   const orbitNodes = useMemo(
     () => nodes.filter((node) => node.id !== "job"),
@@ -440,6 +682,17 @@ export default function LatentSpaceCanvas() {
 
     return () => window.removeEventListener("resize", updateViewport);
   }, []);
+
+  useEffect(() => {
+    const controls = animate(focusProgress, selectedNode ? 1 : 0, {
+      type: "spring",
+      stiffness: 110,
+      damping: 24,
+      mass: 0.9,
+    });
+
+    return () => controls.stop();
+  }, [focusProgress, selectedNode]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -467,6 +720,7 @@ export default function LatentSpaceCanvas() {
           nodes={nodes}
           selectedNode={selectedNode}
           isMobile={isMobile}
+          focusProgress={focusProgress}
           onSelect={(node) => {
             if (node.id === "job") return;
             const nextIndex = orbitNodes.findIndex(
@@ -479,27 +733,45 @@ export default function LatentSpaceCanvas() {
         />
       </Canvas>
 
-      {selectedNode && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm pointer-events-auto"
-          onClick={() => setActiveNode(null)}
-        >
-          <div
-            className="max-w-md w-[calc(100%-2rem)] max-h-[calc(100vh-3rem)] overflow-y-auto p-8 border border-white/20 bg-[#0A0A0A] shadow-2xl"
-            onClick={(event) => event.stopPropagation()}
+      <AnimatePresence>
+        {selectedNode && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.28, ease: "easeOut" }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm pointer-events-auto"
+            onClick={() => setActiveNode(null)}
           >
-            <p className="text-xs tracking-widest text-gray-500 uppercase mb-2">
-              {selectedNode.eyebrow}
-            </p>
-            <p className="text-2xl font-bold text-white mb-4">
-              {selectedNode.title}
-            </p>
-            <p className="text-sm leading-relaxed text-gray-300">
-              {selectedNode.detail}
-            </p>
-          </div>
-        </div>
-      )}
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 14, scale: 0.98 }}
+              transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+              className="max-w-md w-[calc(100%-2rem)] max-h-[calc(100vh-3rem)] overflow-y-auto p-8 border border-white/20 bg-[#0A0A0A] shadow-2xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <p className="text-xs tracking-widest text-gray-500 uppercase mb-2">
+                {selectedNode.eyebrow}
+              </p>
+              <p className="text-2xl font-bold text-white mb-4">
+                {selectedNode.title}
+              </p>
+              <p className="text-sm leading-relaxed text-gray-300">
+                {selectedNode.detail}
+              </p>
+              <motion.button
+                whileHover={{ opacity: 1 }}
+                whileTap={{ scale: 0.98 }}
+                className="mt-6 inline-flex border border-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/88"
+                onClick={() => setActiveNode(null)}
+              >
+                X / Return To Manifold
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div
         className={`pointer-events-none absolute inset-x-6 bottom-8 z-40 flex justify-end transition-opacity duration-300 md:inset-x-12 md:bottom-12 ${
