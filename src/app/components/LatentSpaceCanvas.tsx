@@ -15,7 +15,7 @@ const VOID = "#0A0A0A";
 const POINTS_PER_NODE = 3072;
 const STAR_COUNT = 1500;
 const FOCUSED_NODE_SCALE = 8.8;
-const WISHING_TRAIL_POINTS = 8;
+const WISHING_TRAIL_POINTS = 18;
 
 type DiagramNode = {
   id: string;
@@ -259,7 +259,7 @@ function WishingStar() {
 
     for (let index = 0; index < WISHING_TRAIL_POINTS; index += 1) {
       const alpha = 1 - index / WISHING_TRAIL_POINTS;
-      const value = 0.45 + alpha * 0.55;
+      const value = 0.22 + alpha * 0.78;
       const stride = index * 3;
       values[stride] = value;
       values[stride + 1] = value;
@@ -283,17 +283,17 @@ function WishingStar() {
     const elapsed = state.clock.elapsedTime;
 
     if (streak.nextAt === 0) {
-      streak.nextAt = elapsed + 5 + Math.random() * 3;
+      streak.nextAt = elapsed + 3.8 + Math.random() * 1.8;
     }
 
     if (!streak.active && elapsed >= streak.nextAt) {
       streak.active = true;
       streak.startAt = elapsed;
-      streak.duration = 0.85 + Math.random() * 0.35;
-      streak.nextAt = elapsed + streak.duration + 5 + Math.random() * 3;
-      streak.y = (Math.random() - 0.5) * 9;
-      streak.z = -15 - Math.random() * 10;
-      streak.slope = (Math.random() - 0.5) * 2.2;
+      streak.duration = 1.15 + Math.random() * 0.35;
+      streak.nextAt = elapsed + streak.duration + 3.8 + Math.random() * 1.8;
+      streak.y = -1.8 + Math.random() * 4.2;
+      streak.z = -11 - Math.random() * 6;
+      streak.slope = (Math.random() - 0.5) * 1.1;
     }
 
     if (!positionRef.current || !materialRef.current) {
@@ -313,21 +313,21 @@ function WishingStar() {
         return;
       }
 
-      const headX = -18 + progress * 36;
+      const headX = -16 + progress * 32;
       const headY = streak.y + progress * streak.slope;
 
       for (let index = 0; index < WISHING_TRAIL_POINTS; index += 1) {
         const lag = index / WISHING_TRAIL_POINTS;
         positionRef.current.setXYZ(
           index,
-          headX - lag * 3.8,
-          headY - lag * streak.slope * 0.45,
+          headX - lag * 5.8,
+          headY - lag * streak.slope * 0.55,
           streak.z
         );
       }
 
       positionRef.current.needsUpdate = true;
-      materialRef.current.opacity = 0.62 - progress * 0.24;
+      materialRef.current.opacity = 0.95 - progress * 0.28;
       return;
     }
 
@@ -358,7 +358,7 @@ function WishingStar() {
         vertexColors
         transparent
         opacity={0}
-        size={0.05}
+        size={0.095}
         sizeAttenuation
         depthWrite={false}
         blending={THREE.AdditiveBlending}
