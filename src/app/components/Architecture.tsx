@@ -87,11 +87,11 @@ function LegacyColumn({ phase }: { phase: number }) {
         <div className="space-y-3">
           <div>
             <span className="text-[#F5F5F5]/40">REQ: </span>
-            <span className="text-[#F5F5F5]/80">&quot;Artificial Intelligence&quot;</span>
+            <span className="text-[#F5F5F5]/80">&quot;Machine Learning Engineer&quot;</span>
           </div>
           <div>
             <span className="text-[#F5F5F5]/40">CAND: </span>
-            <span className="text-[#F5F5F5]/80">&quot;機器學習&quot;</span>
+            <span className="text-[#F5F5F5]/80">&quot;AI Research Scientist&quot;</span>
           </div>
 
           {/* Processing line */}
@@ -136,7 +136,7 @@ function LegacyColumn({ phase }: { phase: number }) {
                   </span>
                 </div>
                 <p className="text-[#F5F5F5]/25 text-xs mt-1 pl-4">
-                  KEYWORD NOT FOUND IN CORPUS
+                  TITLE MISMATCH — NO KEYWORD OVERLAP
                 </p>
               </motion.div>
             )}
@@ -197,12 +197,12 @@ function EngineColumn({ phase }: { phase: number }) {
                 <div>
                   <span className="text-[#F5F5F5]/40">REQ: </span>
                   <span className="text-[#F5F5F5]/80">
-                    &quot;Artificial Intelligence&quot;
+                    &quot;Machine Learning Engineer&quot;
                   </span>
                 </div>
                 <div>
                   <span className="text-[#F5F5F5]/40">CAND: </span>
-                  <span className="text-[#F5F5F5]/80">&quot;機器學習&quot;</span>
+                  <span className="text-[#F5F5F5]/80">&quot;AI Research Scientist&quot;</span>
                 </div>
               </motion.div>
             )}

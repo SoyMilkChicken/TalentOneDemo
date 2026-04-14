@@ -23,6 +23,7 @@ type MenuItem = { label: string; sup?: string; href: string };
 const ENTERPRISE_MENU: MenuItem[] = [
   { label: "Architecture", href: "#latent-space" },
   { label: "Case Study", sup: "01", href: "#case-study" },
+  { label: "The Proof", href: "#architecture" },
   { label: "Built By", href: "#built-by" },
 ];
 
