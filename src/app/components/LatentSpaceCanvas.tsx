@@ -774,7 +774,7 @@ export default function LatentSpaceCanvas() {
       </AnimatePresence>
 
       <div
-        className={`pointer-events-none absolute inset-x-6 bottom-8 z-40 flex justify-end transition-opacity duration-300 md:inset-x-12 md:bottom-12 ${
+        className={`pointer-events-none absolute inset-x-6 bottom-6 sm:bottom-8 z-40 flex justify-end transition-opacity duration-300 sm:inset-x-8 md:inset-x-12 md:bottom-12 ${
           activeNode === null ? "opacity-100" : "opacity-0"
         }`}
       >

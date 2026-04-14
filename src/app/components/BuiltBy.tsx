@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 
-const CUBIC = [0.16, 1, 0.3, 1] as const;
+const CUBIC = [0.22, 1, 0.36, 1] as const;
 
 const TEAM = [
   {
@@ -30,53 +30,66 @@ export default function BuiltBy() {
   return (
     <section
       id="built-by"
-      className="relative min-h-[130vh] w-full bg-white text-[#1A1A1A] py-24 md:py-32 px-8 md:px-12 flex flex-col items-center justify-center overflow-hidden"
+      className="relative w-full bg-white text-[#1A1A1A] pt-32 md:pt-40 pb-48 md:pb-72 flex flex-col items-center overflow-hidden"
     >
       {/* ── Header — scroll-triggered reveal ── */}
       <motion.div
-        className="text-center mb-32 md:mb-48"
+        className="text-center mb-32 md:mb-48 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-24"
         initial={{ opacity: 0, y: 60 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.5 }}
+        viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 0.8, ease: CUBIC }}
       >
         <p className="text-[20px] font-medium uppercase tracking-[0.3em] text-[#1A1A1A]/30 mb-4">
           The Team
         </p>
-        <h2 className="text-[clamp(2.5rem,7vw,7rem)] font-semibold uppercase leading-[0.85] tracking-tighter text-[#1A1A1A]">
-          Built By
-        </h2>
+        <div className="overflow-hidden pb-4 inline-block">
+          <motion.h2
+            initial={{ y: "100%" }}
+            whileInView={{ y: "0%" }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ duration: 1.2, ease: CUBIC }}
+            className="text-[clamp(2rem,7vw,7.5rem)] font-black uppercase leading-[0.85] tracking-tighter text-[#1A1A1A]"
+          >
+            Built By
+          </motion.h2>
+        </div>
       </motion.div>
 
       {/* ── Team grid — staggered entrance ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 w-full max-w-6xl place-items-stretch">
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-24 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-24 place-items-stretch"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "0px 0px -100px 0px" }}
+        variants={{
+          hidden: {},
+          visible: { transition: { staggerChildren: 0.2 } },
+        }}
+      >
         {TEAM.map((member, i) => (
           <motion.div
             key={member.name}
-            className="group relative flex flex-col bg-white rounded-[24px] overflow-hidden shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
-            initial={{ opacity: 0, y: 80 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{
-              duration: 0.7,
-              delay: i * 0.15,
-              ease: CUBIC,
+            className="group relative flex flex-col bg-white rounded-none border border-[#1A1A1A]/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
+            variants={{
+              hidden: { opacity: 0, y: 40 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
             }}
           >
             {/* Profile picture */}
-            <div className="relative w-full aspect-square bg-[#e6e6e6] overflow-hidden">
+            <div className="relative w-full aspect-square bg-[#e6e6e6] overflow-hidden rounded-none">
               <Image
                 src={member.photo}
                 alt={member.name}
                 fill
-                className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+                className="rounded-none object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
                 style={{ objectPosition: member.objectPosition }}
                 sizes="(max-width: 768px) 100vw, 33vw"
               />
             </div>
 
             {/* Name + role */}
-            <div className="flex flex-col items-center justify-center w-full py-12 md:py-16 bg-white">
+            <div className="flex flex-col items-center justify-center w-full py-16 md:py-24 bg-white">
               <h3 className="text-xl md:text-2xl font-bold uppercase tracking-wide text-[#1A1A1A]">
                 {member.name}
               </h3>
@@ -86,7 +99,7 @@ export default function BuiltBy() {
             </div>
           </motion.div>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }

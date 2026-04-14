@@ -21,17 +21,17 @@ type Side = "left" | "right" | null;
 type MenuItem = { label: string; sup?: string; href: string };
 
 const ENTERPRISE_MENU: MenuItem[] = [
-  { label: "Built By", href: "#built-by" },
-  { label: "Architecture", href: "#latent-space" },
+  { label: "Technology", href: "#latent-space" },
+  { label: "Architecture", href: "#architecture" },
   { label: "Case Study", sup: "01", href: "#case-study" },
-  { label: "Built By", href: "#built-by" },
+  { label: "The Team", href: "#built-by" },
 ];
 
 const APPLICANT_MENU: MenuItem[] = [
-  { label: "Upload Resume", href: "#upload" },
-  { label: "Vector Analysis", href: "#latent-space" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Contact Us", href: "#contact" },
+  { label: "Technology", href: "#latent-space" },
+  { label: "How It Works", href: "#matching-science" },
+  { label: "Case Study", href: "#case-study" },
+  { label: "The Team", href: "#built-by" },
 ];
 
 // ────────────────────────────────────────────────────
@@ -322,7 +322,7 @@ export default function SplitHero() {
         : RESTING;
 
   return (
-    <section id="hero" className="relative h-screen w-screen overflow-hidden bg-white">
+    <section id="hero" className="relative h-screen w-full overflow-hidden bg-white">
       <BottomBranding />
 
       {/* ── Desktop: horizontal split (unchanged) ── */}
@@ -352,6 +352,14 @@ export default function SplitHero() {
       {/* ── Mobile: full-screen toggle ── */}
       <div className="relative z-10 flex md:hidden h-full w-full">
         <MobileHero onNavigate={handleNavigate} />
+      </div>
+
+      {/* ── Scroll cue — bottom center ── */}
+      <div className="pointer-events-none absolute bottom-10 left-1/2 z-30 -translate-x-1/2 flex flex-col items-center gap-2">
+        <p className="text-[9px] font-medium uppercase tracking-[0.45em] text-[#1A1A1A]/30">
+          Scroll
+        </p>
+        <div className="w-px h-10 bg-gradient-to-b from-[#1A1A1A]/25 to-transparent" />
       </div>
     </section>
   );

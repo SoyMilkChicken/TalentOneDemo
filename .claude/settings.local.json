@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh api:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Read(//c/Users/stanf/**)",
+      "Bash(npx uipro-cli:*)",
+      "WebFetch(domain:balance.michael-aust.com)",
+      "Bash(npm run:*)"
+    ]
+  }
+}
