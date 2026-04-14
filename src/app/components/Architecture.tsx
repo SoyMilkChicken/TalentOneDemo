@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // ────────────────────────────────────────────────────
-// Animation timing
+// Animation timing — 2s per phase so text is readable
 // ────────────────────────────────────────────────────
-const CYCLE_MS = 5000;
-const PHASES = 4; // 0: input, 1: processing, 2: result, 3: verdict
+const CYCLE_MS = 8000;
+const PHASES = 4; // 0: inputs, 1: scanning/embedding, 2: result, 3: verdict
 
 function usePhase() {
   const [phase, setPhase] = useState(0);
@@ -59,7 +59,7 @@ function useScrambleNumbers(active: boolean, target: number[], duration = 800) {
 // ────────────────────────────────────────────────────
 // Blinking cursor
 // ────────────────────────────────────────────────────
-function Cursor({ color = "bg-red-500" }: { color?: string }) {
+function Cursor({ color = "bg-amber-400" }: { color?: string }) {
   return (
     <motion.span
       className={`inline-block w-[2px] h-[1.1em] ${color} ml-0.5 align-middle`}
@@ -69,33 +69,69 @@ function Cursor({ color = "bg-red-500" }: { color?: string }) {
   );
 }
 
-// ────────────────────────────────────────────────────
-// Left column: Legacy ATS failure loop
-// ────────────────────────────────────────────────────
 const CUBIC = [0.16, 1, 0.3, 1] as const;
 
+// ────────────────────────────────────────────────────
+// Keyword highlight — pulses amber when scanning active
+// ────────────────────────────────────────────────────
+function Kw({ children, active }: { children: React.ReactNode; active: boolean }) {
+  if (!active) return <span>{children}</span>;
+  return (
+    <motion.span
+      className="text-amber-400 font-bold"
+      animate={{ opacity: [0.6, 1, 0.6] }}
+      transition={{ duration: 0.9, repeat: Infinity }}
+    >
+      {children}
+    </motion.span>
+  );
+}
+
+// ────────────────────────────────────────────────────
+// Left column: Legacy ATS — fooled by keyword stuffing
+// ────────────────────────────────────────────────────
 function LegacyColumn({ phase }: { phase: number }) {
+  const scanning = phase >= 1;
+
   return (
     <div className="flex flex-col gap-6">
       <p className="text-xs font-medium uppercase tracking-[0.3em] text-[#1A1A1A]/30 mb-2">
-        The Legacy Bottleneck
+        Legacy ATS
       </p>
 
-      {/* Terminal window */}
-      <div className="bg-[#1A1A1A] rounded-sm p-6 md:p-8 font-mono text-sm leading-relaxed min-h-[320px] flex flex-col justify-between">
-        {/* Input lines */}
-        <div className="space-y-3">
+      <div className="bg-[#1A1A1A] rounded-sm p-6 md:p-8 font-mono text-xs leading-relaxed min-h-[420px] flex flex-col justify-between">
+        <div className="space-y-4">
+          {/* Job requirement */}
           <div>
-            <span className="text-[#F5F5F5]/40">REQ: </span>
-            <span className="text-[#F5F5F5]/80">&quot;Machine Learning Engineer&quot;</span>
-          </div>
-          <div>
-            <span className="text-[#F5F5F5]/40">CAND: </span>
-            <span className="text-[#F5F5F5]/80">&quot;AI Research Scientist&quot;</span>
+            <p className="text-[#F5F5F5]/25 text-[10px] uppercase tracking-[0.2em] mb-1">
+              Job Req
+            </p>
+            <p className="text-[#F5F5F5]/80">
+              &quot;<Kw active={scanning}>Process Integration</Kw> Engineer&quot;
+            </p>
           </div>
 
-          {/* Processing line */}
-          <AnimatePresence mode="wait">
+          {/* Keyword-stuffed resume */}
+          <div>
+            <p className="text-[#F5F5F5]/25 text-[10px] uppercase tracking-[0.2em] mb-1">
+              Candidate
+            </p>
+            <p className="text-[#F5F5F5]/60">John Doe — Head Chef, Napoli&apos;s Pizzeria</p>
+            <div className="mt-2 space-y-1.5 text-[#F5F5F5]/40 pl-3 border-l border-[#F5F5F5]/10">
+              <p>
+                › Led <Kw active={scanning}>process integration</Kw> of new pizza flavor pipeline
+              </p>
+              <p>
+                › Managed flavor <Kw active={scanning}>integration</Kw> workflows across 3 kitchens
+              </p>
+              <p>
+                › Cross-functional <Kw active={scanning}>process integration</Kw> reporting
+              </p>
+            </div>
+          </div>
+
+          {/* Scanning animation */}
+          <AnimatePresence>
             {phase >= 1 && (
               <motion.div
                 key="scan"
@@ -103,40 +139,40 @@ function LegacyColumn({ phase }: { phase: number }) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="mt-4 text-[#F5F5F5]/30"
+                className="text-[#F5F5F5]/30"
               >
-                <span>SCANNING</span>
+                <span>SCANNING KEYWORDS</span>
                 <motion.span
                   animate={{ opacity: [0, 1, 0] }}
                   transition={{ duration: 1.2, repeat: Infinity }}
                 >
                   ...
                 </motion.span>
-                <Cursor />
+                <Cursor color="bg-amber-400" />
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Result */}
-        <div className="mt-6 space-y-2">
+        {/* Results */}
+        <div className="mt-4 space-y-2">
           <AnimatePresence mode="wait">
             {phase >= 2 && (
               <motion.div
-                key="error"
+                key="hits"
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, ease: CUBIC }}
               >
                 <div className="flex items-center gap-2">
-                  <span className="inline-block w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                  <span className="text-red-400 font-bold">
-                    ERROR: 0% MATCH
+                  <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                  <span className="text-amber-400 font-bold">
+                    KEYWORD HIT: &quot;PROCESS INTEGRATION&quot; × 4
                   </span>
                 </div>
-                <p className="text-[#F5F5F5]/25 text-xs mt-1 pl-4">
-                  TITLE MISMATCH — NO KEYWORD OVERLAP
+                <p className="text-[#F5F5F5]/25 text-[10px] mt-1 pl-4">
+                  MATCH SCORE: 94% — STRONG CANDIDATE
                 </p>
               </motion.div>
             )}
@@ -145,16 +181,19 @@ function LegacyColumn({ phase }: { phase: number }) {
           <AnimatePresence mode="wait">
             {phase >= 3 && (
               <motion.div
-                key="rejected"
+                key="shortlisted"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, ease: CUBIC }}
-                className="mt-3 border border-red-500/30 px-4 py-2 inline-block"
+                className="mt-3 border border-amber-400/40 px-4 py-2 inline-block"
               >
-                <span className="text-red-400 text-xs font-bold uppercase tracking-[0.2em]">
-                  Candidate Rejected
-                </span>
+                <p className="text-amber-400 text-xs font-bold uppercase tracking-[0.2em]">
+                  ✓ Candidate Shortlisted
+                </p>
+                <p className="text-amber-400/40 text-[9px] mt-0.5 uppercase tracking-wider">
+                  Pizza chef passed as engineer
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -165,14 +204,16 @@ function LegacyColumn({ phase }: { phase: number }) {
 }
 
 // ────────────────────────────────────────────────────
-// Right column: TalentOne engine success loop
+// Right column: TalentOne — sees through the manipulation
 // ────────────────────────────────────────────────────
-const VEC_A = [0.012, -0.441, 0.893, 0.234, -0.112, 0.667];
-const VEC_B = [0.011, -0.422, 0.912, 0.228, -0.098, 0.671];
+// Vectors deliberately divergent: JD lives in engineering cluster,
+// resume lives in culinary cluster → large cosine distance
+const VEC_JD  = [0.823, -0.341,  0.156, -0.512,  0.734,  0.289];
+const VEC_RES = [-0.612,  0.847, -0.423,  0.334, -0.556,  0.712];
 
 function EngineColumn({ phase }: { phase: number }) {
-  const numsA = useScrambleNumbers(phase >= 1, VEC_A);
-  const numsB = useScrambleNumbers(phase >= 1, VEC_B);
+  const numsJD  = useScrambleNumbers(phase >= 1, VEC_JD);
+  const numsRes = useScrambleNumbers(phase >= 1, VEC_RES);
 
   return (
     <div className="flex flex-col gap-6">
@@ -180,48 +221,55 @@ function EngineColumn({ phase }: { phase: number }) {
         The TalentOne Engine
       </p>
 
-      {/* Engine window */}
-      <div className="bg-[#1A1A1A] rounded-sm p-6 md:p-8 font-mono text-sm leading-relaxed min-h-[320px] flex flex-col justify-between">
-        {/* Input → Vector transformation */}
-        <div className="space-y-3">
+      <div className="bg-[#1A1A1A] rounded-sm p-6 md:p-8 font-mono text-xs leading-relaxed min-h-[420px] flex flex-col justify-between">
+        <div className="space-y-4">
           <AnimatePresence mode="wait">
+            {/* Phase 0: show raw inputs */}
             {phase === 0 && (
               <motion.div
-                key="text-input"
+                key="inputs"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="space-y-3"
+                className="space-y-4"
               >
                 <div>
-                  <span className="text-[#F5F5F5]/40">REQ: </span>
-                  <span className="text-[#F5F5F5]/80">
-                    &quot;Machine Learning Engineer&quot;
-                  </span>
+                  <p className="text-[#F5F5F5]/25 text-[10px] uppercase tracking-[0.2em] mb-1">
+                    Job Req
+                  </p>
+                  <p className="text-[#F5F5F5]/80">
+                    &quot;Process Integration Engineer&quot;
+                  </p>
                 </div>
                 <div>
-                  <span className="text-[#F5F5F5]/40">CAND: </span>
-                  <span className="text-[#F5F5F5]/80">&quot;AI Research Scientist&quot;</span>
+                  <p className="text-[#F5F5F5]/25 text-[10px] uppercase tracking-[0.2em] mb-1">
+                    Candidate
+                  </p>
+                  <p className="text-[#F5F5F5]/60">
+                    John Doe — Head Chef, Napoli&apos;s Pizzeria
+                  </p>
                 </div>
               </motion.div>
             )}
 
+            {/* Phase 1–2: diverging semantic embeddings */}
             {phase >= 1 && phase < 3 && (
               <motion.div
-                key="vectors"
+                key="embeddings"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
                 className="space-y-4"
               >
+                {/* JD embedding — engineering cluster */}
                 <div>
                   <p className="text-[#F5F5F5]/25 text-[10px] uppercase tracking-[0.2em] mb-1">
-                    Embedding ℝ³⁰⁷²
+                    JD Embedding ℝ³⁰⁷² → [engineering, systems, technical…]
                   </p>
-                  <p className="text-emerald-400/80 text-xs break-all leading-relaxed">
-                    [{numsA.map((n, i) => (
+                  <p className="text-emerald-400/80 text-[10px] break-all leading-relaxed">
+                    [{numsJD.map((n, i) => (
                       <span key={i}>
                         {i > 0 && ", "}
                         <motion.span
@@ -239,7 +287,7 @@ function EngineColumn({ phase }: { phase: number }) {
                   </p>
                 </div>
 
-                {/* Connecting gradient line */}
+                {/* Diverging separator — green→red signals mismatch */}
                 <motion.div
                   className="relative h-px w-full overflow-hidden"
                   initial={{ scaleX: 0 }}
@@ -247,15 +295,16 @@ function EngineColumn({ phase }: { phase: number }) {
                   transition={{ duration: 0.6, ease: CUBIC }}
                   style={{ transformOrigin: "left" }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/60 via-emerald-400/20 to-emerald-400/60" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/60 via-[#F5F5F5]/10 to-red-500/60" />
                 </motion.div>
 
+                {/* Resume embedding — culinary cluster */}
                 <div>
                   <p className="text-[#F5F5F5]/25 text-[10px] uppercase tracking-[0.2em] mb-1">
-                    Embedding ℝ³⁰⁷²
+                    Resume Embedding ℝ³⁰⁷² → [culinary, pizza, chef…]
                   </p>
-                  <p className="text-emerald-400/80 text-xs break-all leading-relaxed">
-                    [{numsB.map((n, i) => (
+                  <p className="text-red-400/80 text-[10px] break-all leading-relaxed">
+                    [{numsRes.map((n, i) => (
                       <span key={i}>
                         {i > 0 && ", "}
                         <motion.span
@@ -277,8 +326,8 @@ function EngineColumn({ phase }: { phase: number }) {
           </AnimatePresence>
         </div>
 
-        {/* Result */}
-        <div className="mt-6 space-y-2">
+        {/* Results */}
+        <div className="mt-4 space-y-2">
           <AnimatePresence mode="wait">
             {phase >= 2 && (
               <motion.div
@@ -289,13 +338,13 @@ function EngineColumn({ phase }: { phase: number }) {
                 transition={{ duration: 0.3, ease: CUBIC }}
               >
                 <div className="flex items-center gap-2">
-                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-emerald-400 font-bold">
-                    COSINE DISTANCE: 0.042
+                  <span className="inline-block w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  <span className="text-red-400 font-bold">
+                    COSINE DISTANCE: 0.847 — SEMANTIC MISMATCH
                   </span>
                 </div>
-                <p className="text-[#F5F5F5]/30 text-xs mt-1 pl-4">
-                  SEMANTIC MATCH: 95.8%
+                <p className="text-[#F5F5F5]/25 text-[10px] mt-1 pl-4">
+                  ACTUAL FIELD: CULINARY / FOOD SERVICE
                 </p>
               </motion.div>
             )}
@@ -304,16 +353,19 @@ function EngineColumn({ phase }: { phase: number }) {
           <AnimatePresence mode="wait">
             {phase >= 3 && (
               <motion.div
-                key="secured"
+                key="rejected"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3, ease: CUBIC }}
                 className="mt-3 border border-emerald-400/30 px-4 py-2 inline-block"
               >
-                <span className="text-emerald-400 text-xs font-bold uppercase tracking-[0.2em]">
-                  Hidden Gem Secured
-                </span>
+                <p className="text-emerald-400 text-xs font-bold uppercase tracking-[0.2em]">
+                  ✗ Manipulation Detected — Rejected
+                </p>
+                <p className="text-emerald-400/40 text-[9px] mt-0.5 uppercase tracking-wider">
+                  Pizza chef correctly filtered out
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -340,12 +392,12 @@ export default function Architecture() {
           The Proof
         </p>
         <h2 className="text-[clamp(2.5rem,7vw,6rem)] font-black uppercase leading-[0.8] tracking-tighter text-[#1A1A1A]">
-          Boolean Logic
+          Keywords Lie.
           <br />
-          <span className="text-[#1A1A1A]/30">vs. Semantic Intelligence.</span>
+          <span className="text-[#1A1A1A]/30">Semantics Don&apos;t.</span>
         </h2>
         <p className="mt-6 text-xs font-medium uppercase tracking-[0.3em] text-[#1A1A1A]/30">
-          [ Bypassing Keyword Matching via 3,072-Dimensional Retrieval ]
+          [ Keyword Manipulation Cannot Fool 3,072-Dimensional Semantic Retrieval ]
         </p>
       </div>
 
