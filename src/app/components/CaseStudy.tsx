@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const BULLETS = [
   {
     title: "The Keyword Illusion",
@@ -12,6 +14,24 @@ const BULLETS = [
     text: "Highly qualified candidates with non-obvious but mathematically proximate fit are systematically auto-rejected before human review.",
   },
 ];
+
+const POWER_BI_PLOT = "/powerbi-scatter-plot-cropped.png";
+
+function ScatterPlot() {
+  return (
+    <div className="w-full min-h-[400px] overflow-hidden border border-[#F5F5F5]/20 bg-[#111111] p-3 md:h-[600px] md:p-4">
+      <div className="relative h-full w-full overflow-hidden bg-white">
+        <Image
+          src={POWER_BI_PLOT}
+          alt="ATS vs Semantic Scoring candidate benchmark scatter plot"
+          fill
+          className="object-contain"
+          sizes="(max-width: 768px) 100vw, 66vw"
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function CaseStudy() {
   return (
@@ -52,13 +72,9 @@ export default function CaseStudy() {
           </div>
         </div>
 
-        {/* Right: Data placeholder */}
+        {/* Right: Scatter plot */}
         <div className="md:col-span-8 flex items-stretch">
-          <div className="w-full min-h-[400px] md:h-[600px] border border-[#F5F5F5]/20 flex items-center justify-center">
-            <span className="text-sm uppercase tracking-[0.2em] text-[#F5F5F5]/20 text-center px-4">
-              [ Interactive Vector Scatter Plot Will Render Here ]
-            </span>
-          </div>
+          <ScatterPlot />
         </div>
       </div>
     </section>

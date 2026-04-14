@@ -24,7 +24,7 @@ const ENTERPRISE_MENU: MenuItem[] = [
   { label: "Built By", href: "#built-by" },
   { label: "Architecture", href: "#latent-space" },
   { label: "Case Study", sup: "01", href: "#case-study" },
-  { label: "Contact Sales", href: "#contact" },
+  { label: "Built By", href: "#built-by" },
 ];
 
 const APPLICANT_MENU: MenuItem[] = [
@@ -107,7 +107,7 @@ function NavMenu({
     <nav className="flex flex-col gap-0.5">
       {items.map((item, i) => (
         <ClipRevealItem
-          key={item.label}
+          key={`${item.label}-${item.href}-${i}`}
           item={item}
           index={i}
           onNavigate={onNavigate}
