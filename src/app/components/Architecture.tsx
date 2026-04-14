@@ -336,13 +336,16 @@ export default function Architecture() {
     >
       {/* Header */}
       <div className="text-center max-w-4xl">
+        <p className="text-xs font-medium uppercase tracking-[0.3em] text-[#1A1A1A]/30 mb-6">
+          The Proof
+        </p>
         <h2 className="text-[clamp(2.5rem,7vw,6rem)] font-black uppercase leading-[0.8] tracking-tighter text-[#1A1A1A]">
-          The Architecture
+          Boolean Logic
           <br />
-          <span className="text-[#1A1A1A]/30">of Arbitrage.</span>
+          <span className="text-[#1A1A1A]/30">vs. Semantic Intelligence.</span>
         </h2>
         <p className="mt-6 text-xs font-medium uppercase tracking-[0.3em] text-[#1A1A1A]/30">
-          [ Bypassing Boolean Logic via 3,072-Dimensional Retrieval ]
+          [ Bypassing Keyword Matching via 3,072-Dimensional Retrieval ]
         </p>
       </div>
 

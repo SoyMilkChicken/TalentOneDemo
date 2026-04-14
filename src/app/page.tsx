@@ -5,6 +5,7 @@ import BackToTop from "./components/BackToTop";
 import BuiltBy from "./components/BuiltBy";
 import Architecture from "./components/Architecture";
 import CaseStudy from "./components/CaseStudy";
+import ContactSection from "./components/ContactSection";
 
 export default function Home() {
   return (
@@ -36,8 +37,9 @@ export default function Home() {
         </section>
 
         <CaseStudy />
-        <BuiltBy />
         <Architecture />
+        <BuiltBy />
+        <ContactSection />
       </div>
 
       <BackToTop />
