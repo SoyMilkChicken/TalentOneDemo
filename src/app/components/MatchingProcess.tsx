@@ -27,7 +27,7 @@ export default function MatchingProcess() {
     >
       <div className="mx-auto max-w-7xl">
         <div className="mx-auto max-w-4xl text-center">
-          <p className="text-xs font-medium uppercase tracking-[0.34em] text-[#1A1A1A]/35">
+          <p className="text-xs font-medium uppercase tracking-[0.3em] text-[#1A1A1A]/30">
             How It Works
           </p>
           <h2
@@ -72,7 +72,7 @@ export default function MatchingProcess() {
                       className="text-[2.5rem] leading-none"
                       style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
                     >
-                      {"->"}
+                      →
                     </span>
                     <div className="h-px w-14 bg-[#1A1A1A]/12" />
                   </div>

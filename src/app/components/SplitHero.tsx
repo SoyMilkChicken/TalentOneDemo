@@ -21,17 +21,15 @@ type Side = "left" | "right" | null;
 type MenuItem = { label: string; sup?: string; href: string };
 
 const ENTERPRISE_MENU: MenuItem[] = [
-  { label: "Built By", href: "#built-by" },
   { label: "Architecture", href: "#latent-space" },
   { label: "Case Study", sup: "01", href: "#case-study" },
   { label: "Built By", href: "#built-by" },
 ];
 
 const APPLICANT_MENU: MenuItem[] = [
-  { label: "Upload Resume", href: "#upload" },
   { label: "Vector Analysis", href: "#latent-space" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Contact Us", href: "#contact" },
+  { label: "Case Study", sup: "01", href: "#case-study" },
+  { label: "Built By", href: "#built-by" },
 ];
 
 // ────────────────────────────────────────────────────

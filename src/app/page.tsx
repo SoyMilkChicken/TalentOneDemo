@@ -4,9 +4,7 @@ import LatentSpaceCanvas from "./components/LatentSpaceCanvas";
 import BackToTop from "./components/BackToTop";
 import BuiltBy from "./components/BuiltBy";
 import Architecture from "./components/Architecture";
-import MatchingProcess from "./components/MatchingProcess";
 import CaseStudy from "./components/CaseStudy";
-import UploadSection from "./components/UploadSection";
 
 export default function Home() {
   return (
@@ -40,8 +38,6 @@ export default function Home() {
         <CaseStudy />
         <BuiltBy />
         <Architecture />
-        <MatchingProcess />
-        <UploadSection />
       </div>
 
       <BackToTop />
