@@ -1,6 +1,6 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html, Line, OrbitControls } from "@react-three/drei";
 import { AnimatePresence, animate, motion, useMotionValue } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -597,6 +597,21 @@ function Node({
   );
 }
 
+function AutoRotateCamera({ active }: { active: boolean }) {
+  const { camera } = useThree();
+  const angleRef = useRef(Math.atan2(0, 8));
+
+  useFrame((_, delta) => {
+    if (!active) return;
+    angleRef.current += delta * ((2 * Math.PI * 0.56) / 60);
+    camera.position.x = Math.sin(angleRef.current) * 8;
+    camera.position.z = Math.cos(angleRef.current) * 8;
+    camera.lookAt(0, 0, 0);
+  });
+
+  return null;
+}
+
 function Scene({
   nodes,
   selectedNode,
@@ -640,18 +655,22 @@ function Scene({
         />
       ))}
 
-      <OrbitControls
-        enablePan={false}
-        enableRotate={!isMobile}
-        enableZoom={false}
-        rotateSpeed={0.55}
-        autoRotate={selectedNode === null}
-        autoRotateSpeed={0.56}
-        enableDamping
-        dampingFactor={0.08}
-        minPolarAngle={0.01}
-        maxPolarAngle={Math.PI - 0.01}
-      />
+      {isMobile ? (
+        <AutoRotateCamera active={selectedNode === null} />
+      ) : (
+        <OrbitControls
+          enablePan={false}
+          enableRotate
+          enableZoom={false}
+          rotateSpeed={0.55}
+          autoRotate={selectedNode === null}
+          autoRotateSpeed={0.56}
+          enableDamping
+          dampingFactor={0.08}
+          minPolarAngle={0.01}
+          maxPolarAngle={Math.PI - 0.01}
+        />
+      )}
 
     </>
   );
@@ -714,6 +733,9 @@ export default function LatentSpaceCanvas() {
         className="h-full w-full"
         onPointerMissed={() => setActiveNode(null)}
         style={{ touchAction: "pan-y" }}
+        onCreated={({ gl }) => {
+          gl.domElement.style.touchAction = "pan-y";
+        }}
       >
         <color attach="background" args={[VOID]} />
         <Scene

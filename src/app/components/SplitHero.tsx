@@ -38,8 +38,11 @@ const APPLICANT_MENU: MenuItem[] = [
 // ────────────────────────────────────────────────────
 function BottomBranding() {
   return (
-    <div className="pointer-events-none absolute bottom-0 left-0 z-20 w-full overflow-hidden text-center">
-      <h1 className="whitespace-nowrap text-[15vw] font-black uppercase leading-[0.75] tracking-tighter text-[#1A1A1A]">
+    <div
+      className="pointer-events-none absolute bottom-0 left-0 z-20 w-full text-center"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+    >
+      <h1 className="whitespace-nowrap text-[15vw] font-black uppercase leading-[0.85] tracking-tighter text-[#1A1A1A]">
         TalentOne
       </h1>
     </div>
@@ -232,6 +235,16 @@ function MobileHero({ onNavigate }: { onNavigate: () => void }) {
 
   return (
     <div className={`relative h-full w-full ${bg} overflow-hidden`}>
+      {/* ── Top brand label ── */}
+      <div
+        className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 pt-8"
+        style={{ paddingTop: "max(2rem, env(safe-area-inset-top, 2rem))" }}
+      >
+        <p className="text-[11px] font-black uppercase tracking-[0.25em] text-[#1A1A1A]/60">
+          TalentOne
+        </p>
+      </div>
+
       {/* ── Center title — tap to reveal menu ── */}
       <AnimatePresence mode="wait">
         {!menuOpen && (
